@@ -51,6 +51,9 @@ html {
 .leader {
   color: aqua;
 }
+.boss {
+  color: red;
+}
 #battlefield {
   position: absolute;
   left: 0;

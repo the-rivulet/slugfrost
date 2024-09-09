@@ -36,7 +36,7 @@ class Game {
     if(side != undefined) cards = cards.filter(x => x.fieldPos.side == side);
     if(row != undefined) cards = cards.filter(x => x.fieldPos.row == row);
     if(col != undefined) cards = cards.filter(x => x.fieldPos.column == col);
-    return cards.sort((a, b) => a.fieldPos.side * 100 - b.fieldPos.side * 100 + a.fieldPos.column * -10 - b.fieldPos.column * -10 + a.fieldPos.row - b.fieldPos.row);
+    return cards.sort((a, b) => a.fieldPos.side * 100 - b.fieldPos.side * 100 + a.fieldPos.column * 10 - b.fieldPos.column * 10 + a.fieldPos.row * -1 - b.fieldPos.row * -1);
   }
   resolveNext() { this.actionStack.pop().execute(); }
   resolveAll() {

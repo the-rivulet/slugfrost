@@ -51,6 +51,8 @@ export class Card {
             this.createElement();
         if (this.isLeader)
             this.element.classList.add("leader");
+        if ([`slugfrost.bigPeng`].includes(this.id))
+            this.element.classList.add("boss");
         this.element.innerHTML = this.name + "<br/>" + (this.abilities.map(x => x.text).join("<br/>") || this.text);
         if (hasAttack(this)) {
             let el = Array.from(this.element.children).find(x => x.classList.contains("base-attack"));

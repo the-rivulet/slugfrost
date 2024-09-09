@@ -243,6 +243,10 @@ export class DieAction extends Action {
       alert("DEFEAT - Leader died");
       log("DEFEAT - Leader died");
     }
+    if(this.card.id == `slugfrost.bigPeng`) {
+      alert("VICTORY - Defeated Big Peng");
+      log("VICTORY - Defeated Big Peng");
+    }
   }
 }
 
