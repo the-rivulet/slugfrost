@@ -101,6 +101,10 @@ export class HitAction extends Action {
         var _a;
         if (this.isAttack && !(this.target.fieldPos) && this.source.fieldPos) {
             this.target = ((_a = game.cardsByPos(this.source.fieldPos.side == 0 ? 1 : 0, this.source.fieldPos.row)[0]) !== null && _a !== void 0 ? _a : game.cardsByPos(this.source.fieldPos.side == 0 ? 1 : 0)[0]);
+            if (!this.target) {
+                log("But there was no target!");
+                return;
+            }
         }
         log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
         if (this.isAttack && game.battlefield.includes(this.target))

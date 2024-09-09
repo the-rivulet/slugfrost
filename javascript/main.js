@@ -83,6 +83,14 @@ try {
         getId("wavebell").textContent = "Wave [4]";
     };
     getId("wavebell").textContent = "Wave [4]";
+    document.onkeydown = function (e) {
+        if (e.key == "q") {
+            if (getId("log").style.opacity == "0")
+                getId("log").style.opacity = "";
+            else
+                getId("log").style.opacity = "0";
+        }
+    };
     log("Running script...");
     const rivu = new Player(0, true);
     let startingDeck = [

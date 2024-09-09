@@ -118,6 +118,10 @@ export class HitAction extends Action {
     // Attacks cannot hit dead cards
     if(this.isAttack && !((this.target as UnitCard).fieldPos) && (this.source as UnitCard).fieldPos) {
       this.target = (game.cardsByPos((this.source as UnitCard).fieldPos.side == 0 ? 1 : 0, (this.source as UnitCard).fieldPos.row)[0] ?? game.cardsByPos((this.source as UnitCard).fieldPos.side == 0 ? 1 : 0)[0]);
+      if(!this.target) {
+        log("But there was no target!");
+        return;
+      }
     }
     log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
     if(this.isAttack && game.battlefield.includes(this.target as UnitCard)) new TakeDamageAction(this.target as UnitCard, this.amount).stack();
