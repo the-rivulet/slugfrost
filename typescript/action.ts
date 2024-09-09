@@ -115,6 +115,10 @@ export class HitAction extends Action {
     this.isAttack = hasAttack(source);
   }
   run() {
+    // Attacks cannot hit dead cards
+    if(this.isAttack && !((this.target as UnitCard).fieldPos) && (this.source as UnitCard).fieldPos) {
+      this.target = (game.cardsByPos((this.source as UnitCard).fieldPos.side == 0 ? 1 : 0, (this.source as UnitCard).fieldPos.row)[0] ?? game.cardsByPos((this.source as UnitCard).fieldPos.side == 0 ? 1 : 0)[0]);
+    }
     log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
     if(this.isAttack && game.battlefield.includes(this.target as UnitCard)) new TakeDamageAction(this.target as UnitCard, this.amount).stack();
   }
@@ -181,6 +185,7 @@ export class ApplyEffectAction extends Action {
       this.target.curEffects.push(effect);
     }
     this.target.updateElement();
+    this.target.flash(effect.color);
   }
 }
 
@@ -200,6 +205,7 @@ export class TempModifyCounterAction extends Action {
       this.target.curCounter = this.target.baseCounter;
     }
     this.target.updateElement();
+    this.target.flash("gold");
   }
 }
 
@@ -215,6 +221,7 @@ export class ModifyAttackAction extends Action {
   run() {
     this.target.curAttack += this.amount;
     this.target.updateElement();
+    this.target.flash("skyblue");
   }
 }
 

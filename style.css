@@ -2,7 +2,7 @@
   font-family: Uiua;
   src: url(./assets/uiua.ttf);
 }
-html {
+body {
   background: #222;
   color: white;
   font-family: Uiua;
@@ -60,7 +60,6 @@ html {
   top: 0;
   width: 100%;
   height: calc(100% - 150px);
-  background: #333;
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: auto;

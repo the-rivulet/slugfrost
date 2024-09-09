@@ -100,6 +100,10 @@ export abstract class Card {
     this.updateElement();
   }
   dance() { /* Do nothing. Non-Unit cards can't dance. */ }
+  flash(color: string) {
+    this.element.style.background = color;
+    setTimeout(() => { this.element.style.background = ""; }, 300);
+  }
 }
 
 interface FieldPos {
@@ -187,7 +191,6 @@ export abstract class UnitCard extends Card {
     for(let i = 0; i < this.frenzy; i++) {
       if(hasAttack(this)) {
         let firstTarget = forceTarget || (game.cardsByPos(this.fieldPos.side == 0 ? 1 : 0, this.fieldPos.row)[0] ?? game.cardsByPos(this.fieldPos.side == 0 ? 1 : 0)[0]);
-        log("FT=" + firstTarget.name);
         if(firstTarget) new FindTargetsAction(this, firstTarget).onEach(x => new HitAction(this, x).stack());
         else log(this.name + " has no targets!");
       }

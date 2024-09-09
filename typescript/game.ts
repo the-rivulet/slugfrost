@@ -41,6 +41,7 @@ class Game {
   resolveNext() { this.actionStack.pop().execute(); }
   resolveAll() {
     this.resolving = this.actionStack.length > 0;
+    document.body.style.background = this.resolving ? "black" : "";
     if(this.resolving) {
       this.resolveNext();
       setTimeout(() => { this.resolveAll(); }, 500);

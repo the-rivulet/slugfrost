@@ -100,6 +100,10 @@ export class Card {
         this.updateElement();
     }
     dance() { }
+    flash(color) {
+        this.element.style.background = color;
+        setTimeout(() => { this.element.style.background = ""; }, 300);
+    }
 }
 export class ItemCard extends Card {
     get canHitHand() { return !hasAttack(this) && !this.abilities.find(x => x.id.includes(".targeting.")); }
@@ -183,7 +187,6 @@ export class UnitCard extends Card {
         for (let i = 0; i < this.frenzy; i++) {
             if (hasAttack(this)) {
                 let firstTarget = forceTarget || ((_a = game.cardsByPos(this.fieldPos.side == 0 ? 1 : 0, this.fieldPos.row)[0]) !== null && _a !== void 0 ? _a : game.cardsByPos(this.fieldPos.side == 0 ? 1 : 0)[0]);
-                log("FT=" + firstTarget.name);
                 if (firstTarget)
                     new FindTargetsAction(this, firstTarget).onEach(x => new HitAction(this, x).stack());
                 else
