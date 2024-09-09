@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "../javascript",
+    "target": "es6",
+    "module": "es6",
+    "lib": ["es2016", "dom"],
+    "removeComments": true
+  }
+}

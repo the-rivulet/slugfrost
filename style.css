@@ -1,0 +1,97 @@
+@font-face {
+  font-family: Uiua;
+  src: url(./assets/uiua.ttf);
+}
+html {
+  background: #222;
+  color: white;
+  font-family: Uiua;
+  font-size: 13px;
+}
+#log {
+  z-index: 99;
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.5;
+}
+.card {
+  position: absolute;
+  width: 90px;
+  height: 130px;
+  background: black;
+  border: 1px solid white;
+  transition: 0.3s;
+  text-align: center;
+  bottom: 10px;
+  padding: 5px;
+  user-select: none;
+}
+.cardright {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.cardleft {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+.cardbottom {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+.currentlyPlaying {
+  bottom: 50px;
+  background: blue;
+}
+.leader {
+  color: aqua;
+}
+#battlefield {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(100% - 150px);
+  background: #333;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "e c a g i k"
+    "f d b h j l";
+}
+.slot {
+  background: gray;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+#slot-0-0-0 { grid-area: a; }
+#slot-0-0-1 { grid-area: b; }
+#slot-0-1-0 { grid-area: c; }
+#slot-0-1-1 { grid-area: d; }
+#slot-0-2-0 { grid-area: e; }
+#slot-0-2-1 { grid-area: f; }
+#slot-1-0-0 { grid-area: g; background: purple; }
+#slot-1-0-1 { grid-area: h; background: purple; }
+#slot-1-1-0 { grid-area: i; background: purple; }
+#slot-1-1-1 { grid-area: j; background: purple; }
+#slot-1-2-0 { grid-area: k; background: purple; }
+#slot-1-2-1 { grid-area: l; background: purple; }
+.bell {
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 10px;
+  padding: 10px;
+  background: darkgray;
+  z-index: 50;
+}
+#wavebell {
+  bottom: 60px;
+}
