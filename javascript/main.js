@@ -1,5 +1,5 @@
 import { game, getId, Player, ui, log } from "./game.js";
-import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, NakedGnomeCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
+import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
 import { ClunkerCard, ItemCard, UnitCard } from "./card.js";
 try {
     log("Setting up...");
@@ -223,7 +223,6 @@ try {
         i.init();
     const arti = new Player(1, false);
     game.fightsLeft = [
-        { name: "Gnome!", enemies: [[new NakedGnomeCard(arti, false)]] },
         { name: "The Pengoons", enemies: [
                 [new ChungoonCard(arti, false), new WildSnoolfCard(arti, false), new PengoonCard(arti, false)],
                 [new WaddlegoonsCard(arti, false), new GoblingCard(arti, false)],

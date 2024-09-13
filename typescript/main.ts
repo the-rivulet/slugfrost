@@ -175,7 +175,7 @@ try {
   for(let i of startingDeck) i.init();
   const arti = new Player(1, false);
   game.fightsLeft = [
-    {name: "Gnome!", enemies: [[new NakedGnomeCard(arti, false)]]},
+    //{name: "Gnome!", enemies: [[new NakedGnomeCard(arti, false)]]},
     {name: "The Pengoons", enemies: [
       [new ChungoonCard(arti, false), new WildSnoolfCard(arti, false), new PengoonCard(arti, false)],
       [new WaddlegoonsCard(arti, false), new GoblingCard(arti, false)],
