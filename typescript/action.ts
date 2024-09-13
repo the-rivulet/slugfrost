@@ -1,6 +1,6 @@
 import type { Ability, Effect } from "./ability.js";
-import type { Card, ItemCard, UnitCard } from "./card.js";
-import { game, log, HasAttack, HasCounter, Side, hasAttack, getId, Player } from "./game.js";
+import type { Card, CompanionCard, ItemCard, UnitCard } from "./card.js";
+import { game, log, HasAttack, HasCounter, Side, hasAttack, getId, Player, ui } from "./game.js";
 
 export abstract class Action<T = void> {
   abstract id: string;
@@ -43,9 +43,11 @@ export abstract class Action<T = void> {
 export class TriggerAction extends Action {
   id = `base.trigger`;
   card: Card;
-  constructor(card: Card) {
+  isFirst: boolean;
+  constructor(card: Card, isFirst: boolean) {
     super();
     this.card = card;
+    this.isFirst = isFirst;
   }
   run() {
     // no effects, except...
@@ -62,7 +64,8 @@ export class FinishedPlayingAction extends Action {
   }
   run() {
     if(this.card.owner.hand.includes(this.card)) {
-      this.card.owner.discard(this.card);
+      if(this.card.abilities.find(x => x.id == `base.consume`)) this.card.owner.exile(this.card);
+      else this.card.owner.discard(this.card);
     }
   }
 }
@@ -86,18 +89,34 @@ export class FindTargetsAction extends Action<Card[]> {
   }
 }
 
+export class GetDisplayedAttackAction extends Action<number> {
+  id = `base.getDisplayedAttack`;
+  card: HasAttack;
+  amount: number;
+  constructor(card: HasAttack, amount: number) {
+    super();
+    this.card = card;
+    this.amount = amount;
+  }
+  run() {
+    return this.amount;
+  }
+}
+
 export class TakeDamageAction extends Action {
   id = `base.takeDamage`;
   target: UnitCard;
   amount: number;
-  constructor(target: UnitCard, amount: number) {
+  source: Ability | Card;
+  constructor(target: UnitCard, amount: number, source: Ability | Card) {
     super();
     this.target = target;
     this.amount = amount;
+    this.source = source;
   }
   run() {
     log("p" + this.target.owner.side + "'s " + this.target.name + " took " + this.amount + " damage");
-    this.target.takeDamage(this.amount);
+    this.target.takeDamage(Math.max(0, this.amount), this.source);
   }
 }
 
@@ -124,7 +143,7 @@ export class HitAction extends Action {
       }
     }
     log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
-    if(this.isAttack && game.battlefield.includes(this.target as UnitCard)) new TakeDamageAction(this.target as UnitCard, this.amount).stack();
+    if(this.isAttack && game.battlefield.includes(this.target as UnitCard)) new TakeDamageAction(this.target as UnitCard, this.amount, this.source).stack();
   }
 }
 
@@ -141,7 +160,7 @@ export class DealDamageAction extends Action {
   }
   run() {
     log(this.source.id + " on p" + this.source.owner.owner.side + "'s " + this.source.owner.name + " damaged p" + this.target.owner.side + "'s " + this.target.name + " for " + this.amount + " damage");
-    if(game.battlefield.includes(this.target)) new TakeDamageAction(this.target, this.amount).stack();
+    if(game.battlefield.includes(this.target)) new TakeDamageAction(this.target, this.amount, this.source).stack();
   }
 }
 
@@ -160,7 +179,19 @@ export class SummonUnitAction extends Action {
   }
   run() {
     log("p" + this.card.owner.side + " summoned " + this.card.name);
-    // no effects
+    this.card.fieldPos = {side: this.side, row: this.row, column: this.column};
+    game.battlefield.push(this.card);
+    let slot = getId(`slot-${this.side}-${this.column}-${this.row}`);
+    this.card.element.style.bottom = "calc(100% - " + (slot.offsetTop + slot.offsetHeight * 0.75) + "px)";
+    this.card.element.style.left = slot.offsetLeft + slot.offsetWidth * 0.25 + "px";
+    this.card.element.style.opacity = "1";
+    ui.deselect();
+    if(this.card.owner.hand.includes(this.card)) {
+      this.card.owner.hand.splice(this.card.owner.hand.indexOf(this.card), 1);
+      this.card.owner.updateHand();
+    }
+    // for `WhileActiveAddAttackToAlliesAbility`
+    for(let i of game.battlefield) i.updateElement();
   }
 }
 
@@ -169,14 +200,16 @@ export class ApplyEffectAction extends Action {
   source: Ability;
   target: UnitCard;
   makeEffect: (target: UnitCard) => Effect;
+  _makeEffect: (target: UnitCard) => Effect;
   constructor(source: Ability, target: UnitCard, makeEffect: (target: UnitCard) => Effect) {
     super();
     this.source = source;
     this.target = target;
     this.makeEffect = makeEffect;
+    this._makeEffect = makeEffect;
   }
   run() {
-    let effect = this.makeEffect(this.target);
+    let effect = this._makeEffect(this.target);
     log(this.source.id + " on p" + this.source.owner.owner.side + "'s " + this.source.owner.name + " applied " + effect.amount + " " + effect.name + " to p" + this.target.owner.side + "'s " + this.target.name);
     let exists = this.target.curEffects.find(x => x.id == effect.id);
     if(exists) {
@@ -203,7 +236,29 @@ export class TempModifyCounterAction extends Action {
     this.amount = amount;
   }
   run() {
+    if(!this.target.fieldPos) return;
     this.target.curCounter += this.amount;
+    if(this.target.curCounter <= 0) {
+      this.target.trigger();
+      this.target.curCounter = this.target.baseCounter;
+    }
+    this.target.updateElement();
+    this.target.flash("gold");
+  }
+}
+
+export class ModifyMaxCounterAction extends Action {
+  id = `base.modifyMaxCounter`;
+  target: HasCounter;
+  amount: number;
+  constructor(target: HasCounter, amount: number) {
+    super();
+    this.target = target;
+    this.amount = amount;
+  }
+  run() {
+    this.target.curCounter += this.amount;
+    this.target.maxCounter = Math.max(1, this.target.baseCounter + this.amount);
     if(this.target.curCounter <= 0) {
       this.target.trigger();
       this.target.curCounter = this.target.baseCounter;
@@ -229,12 +284,53 @@ export class ModifyAttackAction extends Action {
   }
 }
 
+export class RestoreAction extends Action {
+  id = `base.restore`;
+  target: CompanionCard;
+  amount: number;
+  source: Ability;
+  constructor(target: CompanionCard, amount: number, source: Ability) {
+    super();
+    this.target = target;
+    this.amount = amount;
+    this.source = source;
+  }
+  run() {
+    this.target.curHealth = Math.min(this.target.maxHealth, this.target.curHealth + this.amount);
+    if(this.target.curHealth <= 0) this.target.takeDamage(0, this.source);
+    this.target.updateElement();
+    this.target.flash("salmon");
+  }
+}
+
+export class ModifyMaxHealthAction extends Action {
+  id = `base.modifyMaxHealth`;
+  target: CompanionCard;
+  amount: number;
+  source: Ability;
+  constructor(target: CompanionCard, amount: number, source: Ability) {
+    super();
+    this.target = target;
+    this.amount = amount;
+    this.source = source;
+  }
+  run() {
+    this.target.maxHealth += this.amount;
+    this.target.curHealth += this.amount;
+    if(this.target.curHealth <= 0) this.target.takeDamage(0, this.source);
+    this.target.updateElement();
+    this.target.flash("salmon");
+  }
+}
+
 export class DieAction extends Action {
   id = `base.die`;
   card: UnitCard;
-  constructor(card: UnitCard) {
+  source: Ability | Card;
+  constructor(card: UnitCard, source: Ability | Card) {
     super();
     this.card = card;
+    this.source = source;
   }
   run() {
     game.battlefield.splice(game.battlefield.indexOf(this.card), 1);
@@ -247,16 +343,20 @@ export class DieAction extends Action {
       on.element.style.left = el.offsetLeft + el.offsetWidth * 0.25 + "px";
     }
     this.card.fieldPos = undefined;
-    this.card.element.style.opacity = "0";
-    setTimeout(() => { this.card.element.remove(); }, 300);
+    this.card.owner.exile(this.card);
     log("p" + this.card.owner.side + "'s " + this.card.name + " died");
     if(this.card.isLeader) {
       alert("DEFEAT - Leader died");
       log("DEFEAT - Leader died");
     }
-    if(this.card.id == `slugfrost.bigPeng`) {
-      alert("VICTORY - Defeated Big Peng");
-      log("VICTORY - Defeated Big Peng");
+    if(this.card.owner.side == 1) { // enemy side
+      game.players[0].blings += Math.floor(Math.random() * 3 + ((this.card as CompanionCard).maxHealth || 4));
+    }
+    if((this.card as CompanionCard).boss && !game.battlefield.find(x => (x as CompanionCard).boss) && this.card.id != `slugfrost.bamboozle`) {
+      log("VICTORY - Boss died");
+      game.players[0].blings += Math.floor(Math.random() * 3 + 27);
+      for(let i of game.cardsByPos(1)) game.players[0].blings += Math.floor(Math.random() * 3 + ((i as CompanionCard).maxHealth || 4));
+      game.endCombat();
     }
   }
 }
@@ -272,5 +372,21 @@ export class DrawAction extends Action {
   }
   run() {
     for(let i = 0; i < this.amount; i++) this.player.draw();
+  }
+}
+
+export class ModifyFrenzyAction extends Action {
+  id = `base.modifyFrenzy`;
+  target: UnitCard;
+  amount: number;
+  constructor(target: UnitCard, amount: number) {
+    super();
+    this.target = target;
+    this.amount = amount;
+  }
+  run() {
+    this.target.frenzy = Math.max(1, this.target.frenzy + this.amount);
+    this.target.updateElement();
+    this.target.flash("orange");
   }
 }

@@ -6,7 +6,7 @@ body {
   background: #222;
   color: white;
   font-family: Uiua;
-  font-size: 13px;
+  font-size: 12px;
 }
 #log {
   z-index: 99;
@@ -57,7 +57,7 @@ body {
 #battlefield {
   position: absolute;
   left: 0;
-  top: 0;
+  top: -100%;
   width: 100%;
   height: calc(100% - 150px);
   display: grid;
@@ -66,6 +66,7 @@ body {
   grid-template-areas:
     "e c a g i k"
     "f d b h j l";
+  transition: 0.3s;
 }
 .slot {
   background: gray;
@@ -91,9 +92,73 @@ body {
   right: 20px;
   border-radius: 10px;
   padding: 10px;
-  background: darkgray;
+  background: #333;
   z-index: 50;
 }
 #wavebell {
   bottom: 60px;
+}
+#blings {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  border-radius: 10px;
+  padding: 10px;
+  background: #555;
+  color: yellow;
+  z-index: 50;
+}
+#worldmap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: darkslateblue;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "xa aa ab ac xb xc"
+    "ba bb bc bd be bf"
+    "xd ca cb cc xe xf";
+  transition: 0.3s;
+}
+.mapitem {
+  background: blue;
+  border: 1px solid black;
+  border-radius: 10px;
+  text-align: center;
+  padding: 20px;
+  user-select: none;
+  transition: 0.3s;
+}
+#map-0-1 { grid-area: aa; }
+#map-0-2 { grid-area: ab; }
+#map-0-3 { grid-area: ac; }
+#map-1-0 { grid-area: ba; }
+#map-1-1 { grid-area: bb; }
+#map-1-2 { grid-area: bc; }
+#map-1-3 { grid-area: bd; }
+#map-1-4 { grid-area: be; }
+#map-1-5 { grid-area: bf; }
+#map-2-1 { grid-area: ca; }
+#map-2-2 { grid-area: cb; }
+#map-2-3 { grid-area: cc; }
+.event {
+  position: absolute;
+  top: -100%;
+  left: 10%;
+  width: 80%;
+  height: calc(80% - 150px);
+  background: #333;
+  padding: 5px;
+  border-radius: 10px;
+  text-align: center;
+  transition: 0.3s;
+}
+.pricetag {
+  position: absolute;
+  bottom: 10px;
+  color: yellow;
 }

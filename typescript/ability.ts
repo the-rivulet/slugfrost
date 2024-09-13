@@ -1,6 +1,6 @@
-import { FindTargetsAction, Action, TempModifyCounterAction, ApplyEffectAction } from "./action.js";
-import type { Card, UnitCard } from "./card.js";
-import { game, Side } from "./game.js";
+import { FindTargetsAction, Action, TempModifyCounterAction, ApplyEffectAction, SummonUnitAction, DieAction, ModifyAttackAction } from "./action.js";
+import type { Card, ItemCard, UnitCard } from "./card.js";
+import { game, hasAttack, Side } from "./game.js";
 
 export abstract class Ability {
   abstract id: string;
@@ -19,6 +19,7 @@ export abstract class Effect {
   abstract text: string;
   abstract color: string;
   abstract side: Side;
+  abstract isBuff: boolean;
   owner: UnitCard;
   lastAppliedBy?: Ability;
   amount: number;
@@ -37,6 +38,7 @@ export class SnowEffect extends Effect {
   text = "Halts counter and reactions";
   color = "#77f";
   side = Side.right;
+  isBuff = false;
   use(ac: Action) {
     if(ac instanceof TempModifyCounterAction && ac.amount < 0 && ac.target == this.owner) {
       let change = Math.min(this.amount, -1 * ac.amount);
@@ -44,6 +46,27 @@ export class SnowEffect extends Effect {
       new ApplyEffectAction(this.asAbility, this.owner, t => new SnowEffect(t, -1 * change)).stack();
     }
   }
+}
+
+// and this one too
+export class CustomEffect extends Effect {
+  id: string;
+  name: string;
+  text: string;
+  color: string;
+  side: Side;
+  isBuff: boolean;
+  constructor(owner: UnitCard, amount: number, id: string, name = "", text = "", color = "", side = Side.left, isBuff = false, use?: (ac: Action) => void) {
+    super(owner, amount);
+    this.id = id;
+    this.name = name;
+    this.text = text;
+    this.color = color;
+    this.side = side;
+    this.isBuff = isBuff;
+    this.use = use;
+  }
+  use: (ac: Action) => void;
 }
 
 export interface HasMagicNumber extends Ability {
@@ -100,4 +123,27 @@ export class AimlessAbility extends Ability {
       ac.random = 1;
     }
   }
+}
+
+export class LongshotAbility extends Ability {
+  id = `base.targeting.longshot`;
+  text = "Longshot";
+  isReaction = false;
+  use(ac: Action) {
+    if(ac instanceof FindTargetsAction && ac.source == this.owner) {
+      ac.targets = [game.cardsByPos((ac.targets[0] as UnitCard).fieldPos.side, (ac.targets[0] as UnitCard).fieldPos.row).sort((x, y) => y.fieldPos.column - x.fieldPos.column)[0]];
+    }
+  }
+}
+
+// and this
+export class ConsumeAbility extends Ability {
+  id = `base.consume`;
+  text = "Consume";
+  isReaction = false;
+  owner: ItemCard;
+  constructor(owner: ItemCard) {
+    super(owner);
+  }
+  use(ac: Action) {} // this one has a special edge case
 }

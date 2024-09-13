@@ -1,6 +1,6 @@
 import { game, getId, Player, ui, log } from "./game.js";
-import { BigPengCard, ChungoonCard, FlamewaterCard, FoxeeCard, GoblingCard, PengoonCard, ScrappySwordCard, SneezleCard, SnowStickCard, SunRodCard, WaddlegoonsCard, WildSnoolfCard, WoodheadCard } from "./slugfrost/cards.js";
-import { UnitCard } from "./card.js";
+import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, NakedGnomeCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
+import { ClunkerCard, ItemCard, UnitCard } from "./card.js";
 try {
     log("Setting up...");
     for (let i of Array.from(document.getElementsByClassName("slot"))) {
@@ -58,31 +58,132 @@ try {
         };
     }
     getId("redrawbell").onclick = function () {
-        if (game.resolving)
-            return;
-        if (game.players.find(x => x.hand.find(y => y.isLeader)))
-            return;
-        for (let i of game.players) {
-            while (i.hand.length)
-                i.discard(i.hand[0]);
-            for (let j = 0; j < 6; j++)
-                i.draw();
+        try {
+            if (game.resolving)
+                return;
+            if (game.players.find(x => x.hand.find(y => y.isLeader))) {
+                log(game.players.map(x => x.side + " : [" + x.hand.map(x => x.name + "=" + x.isLeader) + "]"));
+                return;
+            }
+            for (let i of game.players) {
+                while (i.hand.length)
+                    i.discard(i.hand[0]);
+                for (let j = 0; j < 6; j++)
+                    i.draw();
+            }
+            game.crownedPhase = false;
+            if (game.redrawBellTime)
+                game.endTurn();
+            game.redrawBellTime = 4;
+            getId("redrawbell").textContent = "Redraw [4]";
+            getId("redrawbell").style.color = "white";
         }
-        game.crownedPhase = false;
-        if (game.redrawBellTime)
-            game.endTurn();
-        game.redrawBellTime = 4;
-        getId("redrawbell").textContent = "Redraw [4]";
-        getId("redrawbell").style.color = "white";
+        catch (e) {
+            log("Error in redraw bell: " + e);
+        }
     };
     getId("wavebell").onclick = function () {
-        if (game.resolving)
-            return;
-        game.callNextWave();
-        game.waveBellTime = 4;
-        getId("wavebell").textContent = "Wave [4]";
+        try {
+            if (game.resolving)
+                return;
+            game.waveBellTime = 4;
+            game.callNextWave();
+        }
+        catch (e) {
+            log("Error in wave bell: " + e);
+        }
     };
     getId("wavebell").textContent = "Wave [4]";
+    function deckView(rowSize = 7) {
+        try {
+            for (let offset = 0; offset < rivu.deckpack.length; offset += rowSize) {
+                let row = rivu.deckpack.slice(offset, offset + rowSize);
+                log(row.map(x => x.name));
+                for (let card of row) {
+                    log(card.name);
+                    log(card.element + " " + card.element.style.opacity + " " + card.element.style.display);
+                    let i = row.indexOf(card);
+                    card.element.style.left = `calc(50% - 110px * ${i} + 55px * ${row.length - 2})`;
+                    card.element.style.bottom = 10 + offset * (150 / rowSize) + "px";
+                    card.element.style.opacity = "1";
+                    card.element.style.display = "";
+                    log(card.element + " " + card.element.style.opacity + " " + card.element.style.display);
+                }
+            }
+        }
+        catch (e) {
+            log("Error in deck view: " + e);
+        }
+    }
+    getId("event-muncher").onclick = function () {
+        if (game.muncherCounter <= 0)
+            return;
+        if (ui.currentlyPlaying instanceof ItemCard || ui.currentlyPlaying instanceof ClunkerCard) {
+            let i = ui.currentlyPlaying.owner.deckpack.indexOf(ui.currentlyPlaying);
+            ui.currentlyPlaying.owner.deckpack.splice(i, 1);
+            ui.currentlyPlaying.element.remove();
+            if (game.inDeckView)
+                deckView();
+            ui.deselect();
+            game.muncherCounter--;
+            if (!game.muncherCounter) {
+                getId("worldmap").style.top = "0%";
+                getId("event-muncher").style.top = "-100%";
+                game.updateMap();
+            }
+        }
+        else if (!ui.currentlyPlaying) {
+            getId("worldmap").style.top = "0%";
+            getId("event-muncher").style.top = "-100%";
+            game.updateMap();
+        }
+    };
+    getId("event-blingsnailcave").onclick = function () {
+        game.players[0].blings += Math.floor(Math.random() * 40 + 40);
+        getId("worldmap").style.top = "0%";
+        getId("event-blingsnailcave").style.top = "-100%";
+        game.updateMap();
+    };
+    getId("event-frozentravelers").onclick = function () {
+        for (let i of Array.from(getId("event-frozentravelers").children))
+            i.remove();
+        getId("worldmap").style.top = "0%";
+        getId("event-frozentravelers").style.top = "-100%";
+        if (game.inDeckView)
+            deckView();
+        game.updateMap();
+    };
+    getId("event-treasurechest").onclick = function () {
+        for (let i of Array.from(getId("event-treasurechest").children))
+            i.remove();
+        getId("worldmap").style.top = "0%";
+        getId("event-treasurechest").style.top = "-100%";
+        if (game.inDeckView)
+            deckView();
+        game.updateMap();
+    };
+    getId("event-woollysnail").onclick = function () {
+        getId("worldmap").style.top = "0%";
+        getId("event-woollysnail").style.top = "-100%";
+        if (game.inDeckView)
+            deckView();
+        game.updateMap();
+    };
+    getId("deckview").onclick = function () {
+        if (game.inDeckView) {
+            game.inDeckView = false;
+            for (let card of rivu.deckpack) {
+                card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
+                card.element.style.bottom = "10px";
+                card.element.style.opacity = "0";
+            }
+            ui.deselect();
+        }
+        else {
+            game.inDeckView = true;
+            deckView();
+        }
+    };
     document.onkeydown = function (e) {
         if (e.key == "q") {
             if (getId("log").style.opacity == "0")
@@ -90,11 +191,24 @@ try {
             else
                 getId("log").style.opacity = "0";
         }
+        else if (e.key == "r") {
+            if (game.actionDelay == 500)
+                game.actionDelay = 100;
+            else
+                game.actionDelay = 100;
+        }
+        else if (e.key == "s") {
+            for (let i of game.battlefield)
+                i.updateElement();
+        }
     };
     log("Running script...");
     const rivu = new Player(0, true);
+    const foxi = new FoxeeCard(rivu);
+    foxi.isLeader = true;
+    foxi.crowned = true;
     let startingDeck = [
-        new FoxeeCard(rivu),
+        foxi,
         new SneezleCard(rivu),
         new ScrappySwordCard(rivu),
         new ScrappySwordCard(rivu),
@@ -105,18 +219,58 @@ try {
         new FlamewaterCard(rivu),
         new WoodheadCard(rivu),
     ];
-    startingDeck[0].isLeader = true;
-    startingDeck[0].crowned = true;
     for (let i of startingDeck)
         i.init();
     const arti = new Player(1, false);
-    game.wavesLeft = [
-        [new ChungoonCard(arti, false, false), new WildSnoolfCard(arti, false, false), new PengoonCard(arti, false, false)],
-        [new WaddlegoonsCard(arti, false, false), new GoblingCard(arti, false, false)],
-        [new PengoonCard(arti, false, false), new PengoonCard(arti, false, false), new BigPengCard(arti, false, false), new PengoonCard(arti, false, false), new PengoonCard(arti, false, false)]
+    game.fightsLeft = [
+        { name: "Gnome!", enemies: [[new NakedGnomeCard(arti, false)]] },
+        { name: "The Pengoons", enemies: [
+                [new ChungoonCard(arti, false), new WildSnoolfCard(arti, false), new PengoonCard(arti, false)],
+                [new WaddlegoonsCard(arti, false), new GoblingCard(arti, false)],
+                [new PengoonCard(arti, false), new PengoonCard(arti, false), new BigPengCard(arti, false), new PengoonCard(arti, false), new PengoonCard(arti, false)]
+            ] },
+        { name: "The Frost Shades", enemies: [
+                [new FrostingerCard(arti, false), new PorkypineCard(arti, false), new MimikCard(arti, false)],
+                [new FrostingerCard(arti, false), new GoblingCard(arti, false), new MimikCard(arti, false), new IceLanternCard(arti, false)],
+                [new TheRingerCard(arti, false), new FrostingerCard(arti, false), new PorkypineCard(arti, false)]
+            ] },
+        { name: "Bamboozle", enemies: [
+                [new BamboozleCard(arti, false), new WinterWormCard(arti, false), new SnowboCard(arti, false)],
+                [new WinterWormCard(arti, false), new SnowboCard(arti, false)],
+                [new SnowboCard(arti, false), new SnowboCard(arti, false)]
+            ] },
     ];
-    game.callNextWave();
-    game.doCrownedPhase(rivu);
+    game.companionDeck = [
+        new BijiCard(rivu, false),
+        new BigBerryCard(rivu, false),
+        new BonnieCard(rivu, false),
+        new GojiberCard(rivu, false),
+        new FirefistCard(rivu, false),
+        new PyraCard(rivu, false),
+        new SnobbleCard(rivu, false)
+    ];
+    game.treasureDeck = [
+        new BlazeTeaCard(rivu, false),
+        new BerryBasketCard(rivu, false),
+        new BerryBladeCard(rivu, false),
+        new BlizzardBottleCard(rivu, false),
+        new FrostBellCard(rivu, false),
+        new FrostbloomCard(rivu, false),
+        new MoltenDipCard(rivu, false),
+        new SlapcrackersCard(rivu, false),
+        new PinkberryJuiceCard(rivu, false),
+        new SunlightDrumCard(rivu, false),
+        new StormbearSpiritCard(rivu, false),
+        new PeppereaperCard(rivu, false),
+        new PepperingCard(rivu, false),
+        new DragonPepperCard(rivu, false),
+        new SnowcakeCard(rivu, false),
+        new MimikCard(rivu, false),
+        new BiteboxCard(rivu, false),
+        new GachapomperCard(rivu, false),
+        new HeartmistStationCard(rivu, false)
+    ];
+    game.setupMap();
 }
 catch (e) {
     log("Error in setup: " + e);

@@ -20,6 +20,7 @@ export class SnowEffect extends Effect {
         this.text = "Halts counter and reactions";
         this.color = "#77f";
         this.side = Side.right;
+        this.isBuff = false;
     }
     use(ac) {
         if (ac instanceof TempModifyCounterAction && ac.amount < 0 && ac.target == this.owner) {
@@ -27,6 +28,18 @@ export class SnowEffect extends Effect {
             ac.amount += change;
             new ApplyEffectAction(this.asAbility, this.owner, t => new SnowEffect(t, -1 * change)).stack();
         }
+    }
+}
+export class CustomEffect extends Effect {
+    constructor(owner, amount, id, name = "", text = "", color = "", side = Side.left, isBuff = false, use) {
+        super(owner, amount);
+        this.id = id;
+        this.name = name;
+        this.text = text;
+        this.color = color;
+        this.side = side;
+        this.isBuff = isBuff;
+        this.use = use;
     }
 }
 export function hasMagicNumber(ability) {
@@ -81,4 +94,26 @@ export class AimlessAbility extends Ability {
             ac.random = 1;
         }
     }
+}
+export class LongshotAbility extends Ability {
+    constructor() {
+        super(...arguments);
+        this.id = `base.targeting.longshot`;
+        this.text = "Longshot";
+        this.isReaction = false;
+    }
+    use(ac) {
+        if (ac instanceof FindTargetsAction && ac.source == this.owner) {
+            ac.targets = [game.cardsByPos(ac.targets[0].fieldPos.side, ac.targets[0].fieldPos.row).sort((x, y) => y.fieldPos.column - x.fieldPos.column)[0]];
+        }
+    }
+}
+export class ConsumeAbility extends Ability {
+    constructor(owner) {
+        super(owner);
+        this.id = `base.consume`;
+        this.text = "Consume";
+        this.isReaction = false;
+    }
+    use(ac) { }
 }

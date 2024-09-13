@@ -1,7 +1,7 @@
 import { game, getId, hasAttack, hasCondition, hasCounter, log, Player, ui } from "./game.js";
 import type { Ability, Effect } from "./ability.js";
 import type { Charm } from "./charm.js";
-import { HitAction, FindTargetsAction, SummonUnitAction, TriggerAction, FinishedPlayingAction, DieAction, TempModifyCounterAction } from "./action.js";
+import { HitAction, FindTargetsAction, SummonUnitAction, TriggerAction, FinishedPlayingAction, DieAction, TempModifyCounterAction, GetDisplayedAttackAction } from "./action.js";
 
 export abstract class Card {
   owner?: Player;
@@ -33,7 +33,7 @@ export abstract class Card {
     this.element.classList.add("card");
     this.element.style.opacity = "0";
     this.element.onmousedown = (e) => {
-      if(ui.currentlyPlaying instanceof ItemCard && ((this instanceof UnitCard && this.fieldPos) || ui.currentlyPlaying.canHitHand) && (!hasCondition(ui.currentlyPlaying) || ui.currentlyPlaying.condition(this))) {
+      if(ui.currentlyPlaying instanceof ItemCard && ((this instanceof UnitCard && this.fieldPos) || ui.currentlyPlaying.canHitHand) && (!hasCondition(ui.currentlyPlaying) || ui.currentlyPlaying.condition(this)) && game.inCombat) {
         if(game.resolving) return;
         ui.currentlyPlaying.play(this);
         ui.deselect();
@@ -50,10 +50,32 @@ export abstract class Card {
     }
     getId("hand").appendChild(this.element);
   }
+  createRewardElement(reward: string, price: number, flavorText?: (name: string) => string) {
+    this.element = document.createElement("div");
+    this.element.classList.add("card");
+    this.element.onmousedown = (e) => {
+      // if it's priced, make sure we can afford it
+      if(game.players[0].blings < price) {
+        log("You can't afford that!");
+        return;
+      }
+      game.players[0].blings -= price;
+      this.owner.deckpack.push(this);
+      this.owner.drawPile.push(this);
+      this.element.innerHTML = "";
+      //this.element.style.height = "0px";
+      //setTimeout(x => x.remove(), 1000, this.element);
+      this.element.remove();
+      this.element = undefined;
+      this.updateElement();
+      if(flavorText) getId(reward).innerHTML = flavorText(this.name);
+    }
+    getId(reward).appendChild(this.element);
+  }
   updateElement() {
     if(!this.element) this.createElement();
     if(this.isLeader) this.element.classList.add("leader");
-    if([`slugfrost.bigPeng`].includes(this.id)) this.element.classList.add("boss");
+    if(this instanceof CompanionCard && this.boss) this.element.classList.add("boss");
     this.element.innerHTML = this.name + "<br/>" + (this.abilities.map(x => x.text).join("<br/>") || this.text);
     if(hasAttack(this)) {
       let el = Array.from(this.element.children).find(x => x.classList.contains("base-attack"));
@@ -62,7 +84,7 @@ export abstract class Card {
         el.classList.add("base-attack", "cardright");
         this.element.appendChild(el);
       }
-      el.innerHTML = "<span style='color:skyblue'>" + this.curAttack + "</span>";
+      el.innerHTML = "<span style='color:skyblue'>" + new GetDisplayedAttackAction(this, this.curAttack).execute() + "</span>";
     }
     for(let effect of this.curEffects) {
       let el = Array.from(this.element.children).find(x => x.classList.contains(effect.id.replace(".", "-"))) as HTMLElement;
@@ -92,7 +114,7 @@ export abstract class Card {
         this.element.appendChild(el);
       }
       el.style.bottom = Array.from(this.element.children).filter(x => x.classList.contains("cardbottom")).length * 20 + "px";
-      el.innerHTML = "<span style='color:" + this.curEffects.find(x => x.id == `base.snow`) ? "#77f" : "orange" + "'>{!}</span>";
+      el.innerHTML = `<span style='color:${this.curEffects.find(x => x.id == `base.snow`) ? "#77f" : "orange"}'>{!}</span>`;
     }
   }
   init() {
@@ -123,17 +145,20 @@ export abstract class ItemCard extends Card {
     new FinishedPlayingAction(this).stack();
     for(let i = 0; i < this.frenzy; i++) {
       new FindTargetsAction(this, target).onEach(x => new HitAction(this, x).stack());
-      new TriggerAction(this).stack();
+      new TriggerAction(this, i == 0).stack();
     }
     return true;
   }
 }
 
 export abstract class UnitCard extends Card {
-  abstract takeDamage(amount: number): void;
+  abstract takeDamage(amount: number, source: Ability | Card): void;
   fieldPos?: FieldPos;
   init() {
-    if(hasCounter(this)) this.curCounter = this.baseCounter;
+    if(hasCounter(this)) {
+      this.curCounter = this.baseCounter;
+      this.maxCounter = this.baseCounter;
+    }
     super.init();
   }
   summon(row: number, col: number) {
@@ -144,22 +169,11 @@ export abstract class UnitCard extends Card {
       on.fieldPos.column++;
       on.element.style.left = getId(`slot-${this.owner.side}-${col + 1}-${row}`).offsetLeft + getId(`slot-${this.owner.side}-${col + 1}-${row}`).offsetWidth * 0.25 + "px";
     } else return false;
-    this.fieldPos = {side: this.owner.side, row: row, column: col};
-    game.battlefield.push(this);
-    let slot = getId(`slot-${this.owner.side}-${col}-${row}`);
-    this.element.style.bottom = "calc(100% - " + (slot.offsetTop + slot.offsetHeight * 0.75) + "px)";
-    this.element.style.left = slot.offsetLeft + slot.offsetWidth * 0.25 + "px";
-    this.element.style.opacity = "1";
-    ui.deselect();
-    if(this.owner.hand.includes(this)) {
-      this.owner.hand.splice(this.owner.hand.indexOf(this), 1);
-      this.owner.updateHand();
-    }
     new SummonUnitAction(this, this.owner.side, row, col).stack();
     return true;
   }
-  die() {
-    new DieAction(this).stack();
+  die(source: Ability | Card) {
+    new DieAction(this, source).stack();
   }
   recall() {
     game.battlefield.splice(game.battlefield.indexOf(this), 1);
@@ -194,7 +208,7 @@ export abstract class UnitCard extends Card {
         if(firstTarget) new FindTargetsAction(this, firstTarget).onEach(x => new HitAction(this, x).stack());
         else log(this.name + " has no targets!");
       }
-      new TriggerAction(this).stack();
+      new TriggerAction(this, i == 0).stack();
     }
   }
   updateElement() {
@@ -216,10 +230,11 @@ export abstract class CompanionCard extends UnitCard {
   maxHealth: number;
   curHealth: number;
   injured = false;
-  takeDamage(amount: number) {
+  boss = false;
+  takeDamage(amount: number, source: Ability | Card) {
     this.curHealth -= amount;
     this.updateElement();
-    if(this.curHealth <= 0) this.die();
+    if(this.curHealth <= 0) this.die(source);
     else this.danceHurt();
   }
   updateElement() {
@@ -243,9 +258,9 @@ export abstract class CompanionCard extends UnitCard {
 export abstract class ClunkerCard extends UnitCard {
   abstract baseScrap: number;
   curScrap: number;
-  takeDamage(amount: number) {
+  takeDamage(amount: number, source: any) {
     if(amount > 0) { this.curScrap--; this.updateElement(); }
-    if(this.curScrap <= 0) this.die();
+    if(this.curScrap <= 0) this.die(source);
     else this.danceHurt();
   }
   updateElement() {

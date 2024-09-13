@@ -1,4 +1,4 @@
-import { game, log, hasAttack, getId } from "./game.js";
+import { game, log, hasAttack, getId, ui } from "./game.js";
 export class Action {
     execute() {
         try {
@@ -39,10 +39,11 @@ export class Action {
     }
 }
 export class TriggerAction extends Action {
-    constructor(card) {
+    constructor(card, isFirst) {
         super();
         this.id = `base.trigger`;
         this.card = card;
+        this.isFirst = isFirst;
     }
     run() {
         this.card.dance();
@@ -56,7 +57,10 @@ export class FinishedPlayingAction extends Action {
     }
     run() {
         if (this.card.owner.hand.includes(this.card)) {
-            this.card.owner.discard(this.card);
+            if (this.card.abilities.find(x => x.id == `base.consume`))
+                this.card.owner.exile(this.card);
+            else
+                this.card.owner.discard(this.card);
         }
     }
 }
@@ -76,16 +80,28 @@ export class FindTargetsAction extends Action {
         this.execute().forEach(func);
     }
 }
+export class GetDisplayedAttackAction extends Action {
+    constructor(card, amount) {
+        super();
+        this.id = `base.getDisplayedAttack`;
+        this.card = card;
+        this.amount = amount;
+    }
+    run() {
+        return this.amount;
+    }
+}
 export class TakeDamageAction extends Action {
-    constructor(target, amount) {
+    constructor(target, amount, source) {
         super();
         this.id = `base.takeDamage`;
         this.target = target;
         this.amount = amount;
+        this.source = source;
     }
     run() {
         log("p" + this.target.owner.side + "'s " + this.target.name + " took " + this.amount + " damage");
-        this.target.takeDamage(this.amount);
+        this.target.takeDamage(Math.max(0, this.amount), this.source);
     }
 }
 export class HitAction extends Action {
@@ -108,7 +124,7 @@ export class HitAction extends Action {
         }
         log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
         if (this.isAttack && game.battlefield.includes(this.target))
-            new TakeDamageAction(this.target, this.amount).stack();
+            new TakeDamageAction(this.target, this.amount, this.source).stack();
     }
 }
 export class DealDamageAction extends Action {
@@ -122,7 +138,7 @@ export class DealDamageAction extends Action {
     run() {
         log(this.source.id + " on p" + this.source.owner.owner.side + "'s " + this.source.owner.name + " damaged p" + this.target.owner.side + "'s " + this.target.name + " for " + this.amount + " damage");
         if (game.battlefield.includes(this.target))
-            new TakeDamageAction(this.target, this.amount).stack();
+            new TakeDamageAction(this.target, this.amount, this.source).stack();
     }
 }
 export class SummonUnitAction extends Action {
@@ -136,6 +152,19 @@ export class SummonUnitAction extends Action {
     }
     run() {
         log("p" + this.card.owner.side + " summoned " + this.card.name);
+        this.card.fieldPos = { side: this.side, row: this.row, column: this.column };
+        game.battlefield.push(this.card);
+        let slot = getId(`slot-${this.side}-${this.column}-${this.row}`);
+        this.card.element.style.bottom = "calc(100% - " + (slot.offsetTop + slot.offsetHeight * 0.75) + "px)";
+        this.card.element.style.left = slot.offsetLeft + slot.offsetWidth * 0.25 + "px";
+        this.card.element.style.opacity = "1";
+        ui.deselect();
+        if (this.card.owner.hand.includes(this.card)) {
+            this.card.owner.hand.splice(this.card.owner.hand.indexOf(this.card), 1);
+            this.card.owner.updateHand();
+        }
+        for (let i of game.battlefield)
+            i.updateElement();
     }
 }
 export class ApplyEffectAction extends Action {
@@ -145,9 +174,10 @@ export class ApplyEffectAction extends Action {
         this.source = source;
         this.target = target;
         this.makeEffect = makeEffect;
+        this._makeEffect = makeEffect;
     }
     run() {
-        let effect = this.makeEffect(this.target);
+        let effect = this._makeEffect(this.target);
         log(this.source.id + " on p" + this.source.owner.owner.side + "'s " + this.source.owner.name + " applied " + effect.amount + " " + effect.name + " to p" + this.target.owner.side + "'s " + this.target.name);
         let exists = this.target.curEffects.find(x => x.id == effect.id);
         if (exists) {
@@ -173,7 +203,27 @@ export class TempModifyCounterAction extends Action {
         this.amount = amount;
     }
     run() {
+        if (!this.target.fieldPos)
+            return;
         this.target.curCounter += this.amount;
+        if (this.target.curCounter <= 0) {
+            this.target.trigger();
+            this.target.curCounter = this.target.baseCounter;
+        }
+        this.target.updateElement();
+        this.target.flash("gold");
+    }
+}
+export class ModifyMaxCounterAction extends Action {
+    constructor(target, amount) {
+        super();
+        this.id = `base.modifyMaxCounter`;
+        this.target = target;
+        this.amount = amount;
+    }
+    run() {
+        this.target.curCounter += this.amount;
+        this.target.maxCounter = Math.max(1, this.target.baseCounter + this.amount);
         if (this.target.curCounter <= 0) {
             this.target.trigger();
             this.target.curCounter = this.target.baseCounter;
@@ -195,11 +245,45 @@ export class ModifyAttackAction extends Action {
         this.target.flash("skyblue");
     }
 }
+export class RestoreAction extends Action {
+    constructor(target, amount, source) {
+        super();
+        this.id = `base.restore`;
+        this.target = target;
+        this.amount = amount;
+        this.source = source;
+    }
+    run() {
+        this.target.curHealth = Math.min(this.target.maxHealth, this.target.curHealth + this.amount);
+        if (this.target.curHealth <= 0)
+            this.target.takeDamage(0, this.source);
+        this.target.updateElement();
+        this.target.flash("salmon");
+    }
+}
+export class ModifyMaxHealthAction extends Action {
+    constructor(target, amount, source) {
+        super();
+        this.id = `base.modifyMaxHealth`;
+        this.target = target;
+        this.amount = amount;
+        this.source = source;
+    }
+    run() {
+        this.target.maxHealth += this.amount;
+        this.target.curHealth += this.amount;
+        if (this.target.curHealth <= 0)
+            this.target.takeDamage(0, this.source);
+        this.target.updateElement();
+        this.target.flash("salmon");
+    }
+}
 export class DieAction extends Action {
-    constructor(card) {
+    constructor(card, source) {
         super();
         this.id = `base.die`;
         this.card = card;
+        this.source = source;
     }
     run() {
         game.battlefield.splice(game.battlefield.indexOf(this.card), 1);
@@ -212,16 +296,21 @@ export class DieAction extends Action {
             on.element.style.left = el.offsetLeft + el.offsetWidth * 0.25 + "px";
         }
         this.card.fieldPos = undefined;
-        this.card.element.style.opacity = "0";
-        setTimeout(() => { this.card.element.remove(); }, 300);
+        this.card.owner.exile(this.card);
         log("p" + this.card.owner.side + "'s " + this.card.name + " died");
         if (this.card.isLeader) {
             alert("DEFEAT - Leader died");
             log("DEFEAT - Leader died");
         }
-        if (this.card.id == `slugfrost.bigPeng`) {
-            alert("VICTORY - Defeated Big Peng");
-            log("VICTORY - Defeated Big Peng");
+        if (this.card.owner.side == 1) {
+            game.players[0].blings += Math.floor(Math.random() * 3 + (this.card.maxHealth || 4));
+        }
+        if (this.card.boss && !game.battlefield.find(x => x.boss) && this.card.id != `slugfrost.bamboozle`) {
+            log("VICTORY - Boss died");
+            game.players[0].blings += Math.floor(Math.random() * 3 + 27);
+            for (let i of game.cardsByPos(1))
+                game.players[0].blings += Math.floor(Math.random() * 3 + (i.maxHealth || 4));
+            game.endCombat();
         }
     }
 }
@@ -235,5 +324,18 @@ export class DrawAction extends Action {
     run() {
         for (let i = 0; i < this.amount; i++)
             this.player.draw();
+    }
+}
+export class ModifyFrenzyAction extends Action {
+    constructor(target, amount) {
+        super();
+        this.id = `base.modifyFrenzy`;
+        this.target = target;
+        this.amount = amount;
+    }
+    run() {
+        this.target.frenzy = Math.max(1, this.target.frenzy + this.amount);
+        this.target.updateElement();
+        this.target.flash("orange");
     }
 }
