@@ -1,7 +1,7 @@
-import { Ability, CustomEffect, Effect, hasMagicNumber, HasMagicNumber } from "../ability.js";
+import { Ability, CustomEffect, Effect } from "../ability.js";
 import { Action, ApplyEffectAction, HitAction, FindTargetsAction, ModifyAttackAction, TriggerAction, TempModifyCounterAction, DieAction, DrawAction, SummonUnitAction, ModifyMaxCounterAction, ModifyFrenzyAction, GetDisplayedAttackAction, RestoreAction, TakeDamageAction, ModifyMaxHealthAction, DealDamageAction } from "../action.js";
 import { Card, CompanionCard, UnitCard } from "../card.js";
-import { game, getId, HasAttack, hasAttack, hasCounter, log } from "../game.js";
+import { game, getId, HasAttack, hasAttack, hasCounter, hasMagicNumber, HasMagicNumber } from "../game.js";
 
 export class ApplyEffectAbility extends Ability implements HasMagicNumber {
   id = `slugfrost.applyEffect`;
@@ -290,7 +290,7 @@ export class TriggerWhenAllyInRowAttacksAbility extends Ability {
   isReaction = true;
   owner: UnitCard;
   use(ac: Action) {
-    if(ac instanceof TriggerAction && ac.card != this.owner && ac.card instanceof UnitCard && ac.card.owner.side == this.owner.owner.side && ac.card.fieldPos.row == this.owner.fieldPos.row) {
+    if(ac instanceof TriggerAction && !ac.card.abilities.find(x => x instanceof TriggerWhenAllyInRowAttacksAbility) && ac.card instanceof UnitCard && ac.card.owner.side == this.owner.owner.side && ac.card.fieldPos.row == this.owner.fieldPos.row) {
       this.owner.trigger();
     }
   }

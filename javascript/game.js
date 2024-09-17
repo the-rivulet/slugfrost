@@ -275,6 +275,11 @@ class Game {
             shuffleArray(p.drawPile);
             for (let i of p.drawPile) {
                 i.curEffects = structuredClone(i.baseEffects.slice(0));
+                for (let a of i.abilities) {
+                    if (hasMagicNumber(a)) {
+                        a.magic = a.baseMagic;
+                    }
+                }
                 i.init();
             }
             p.hand = [];
@@ -310,6 +315,12 @@ class Game {
             for (let i of p.deckpack) {
                 i.init();
                 i.curEffects = structuredClone(i.baseEffects.slice(0));
+                for (let a of i.abilities) {
+                    if (hasMagicNumber(a)) {
+                        a.magic = a.baseMagic;
+                        i.updateElement();
+                    }
+                }
             }
         }
         if (!this.firstCombat) {
@@ -382,6 +393,7 @@ export class Player {
         if (this.hand.includes(card))
             this.hand.splice(this.hand.indexOf(card), 1);
         this.exilePile.push(card);
+        card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
         card.element.style.opacity = "0";
         this.updateHand();
     }
@@ -406,6 +418,9 @@ export function hasCounter(x) {
 }
 export function hasCondition(x) {
     return "condition" in x && typeof x.condition == "function";
+}
+export function hasMagicNumber(ability) {
+    return "baseMagic" in ability && typeof ability.baseMagic == "number";
 }
 export var Side;
 (function (Side) {

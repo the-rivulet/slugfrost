@@ -1,7 +1,7 @@
-import { Ability, CustomEffect, hasMagicNumber } from "../ability.js";
+import { Ability, CustomEffect } from "../ability.js";
 import { ApplyEffectAction, HitAction, FindTargetsAction, ModifyAttackAction, TriggerAction, TempModifyCounterAction, DieAction, DrawAction, SummonUnitAction, ModifyMaxCounterAction, ModifyFrenzyAction, GetDisplayedAttackAction, RestoreAction, TakeDamageAction, ModifyMaxHealthAction, DealDamageAction } from "../action.js";
 import { CompanionCard, UnitCard } from "../card.js";
-import { game, getId, hasAttack, hasCounter } from "../game.js";
+import { game, getId, hasAttack, hasCounter, hasMagicNumber } from "../game.js";
 export class ApplyEffectAbility extends Ability {
     get text() { return `Apply ${this.magic} ${this.name}`; }
     constructor(owner, makeEffect, amount, name) {
@@ -243,7 +243,7 @@ export class TriggerWhenAllyInRowAttacksAbility extends Ability {
         this.isReaction = true;
     }
     use(ac) {
-        if (ac instanceof TriggerAction && ac.card != this.owner && ac.card instanceof UnitCard && ac.card.owner.side == this.owner.owner.side && ac.card.fieldPos.row == this.owner.fieldPos.row) {
+        if (ac instanceof TriggerAction && !ac.card.abilities.find(x => x instanceof TriggerWhenAllyInRowAttacksAbility) && ac.card instanceof UnitCard && ac.card.owner.side == this.owner.owner.side && ac.card.fieldPos.row == this.owner.fieldPos.row) {
             this.owner.trigger();
         }
     }

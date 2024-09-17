@@ -69,14 +69,6 @@ export class CustomEffect extends Effect {
   use: (ac: Action) => void;
 }
 
-export interface HasMagicNumber extends Ability {
-  baseMagic: number;
-  magic: number;
-}
-export function hasMagicNumber(ability: Ability): ability is HasMagicNumber {
-  return "baseMagic" in ability && typeof ability.baseMagic == "number";
-}
-
 export class UniqueAbility extends Ability {
   id = `base.uniqueAbility`;
   text: string;

@@ -113,7 +113,7 @@ export class HitAction extends Action {
         this.amount = hasAttack(source) ? Math.max(0, source.curAttack) : 0;
         this.isAttack = hasAttack(source);
     }
-    run() {
+    execute() {
         var _a;
         if (this.isAttack && !(this.target.fieldPos) && this.source.fieldPos) {
             this.target = ((_a = game.cardsByPos(this.source.fieldPos.side == 0 ? 1 : 0, this.source.fieldPos.row)[0]) !== null && _a !== void 0 ? _a : game.cardsByPos(this.source.fieldPos.side == 0 ? 1 : 0)[0]);
@@ -122,6 +122,9 @@ export class HitAction extends Action {
                 return;
             }
         }
+        super.execute();
+    }
+    run() {
         log("p" + this.source.owner.side + "'s " + this.source.name + " hit p" + this.target.owner.side + "'s " + this.target.name + (this.isAttack ? " for " + this.amount + " damage" : ""));
         if (this.isAttack && game.battlefield.includes(this.target))
             new TakeDamageAction(this.target, this.amount, this.source).stack();
@@ -297,6 +300,8 @@ export class DieAction extends Action {
         }
         this.card.fieldPos = undefined;
         this.card.owner.exile(this.card);
+        if (ui.currentlyPlaying == this.card)
+            ui.deselect();
         log("p" + this.card.owner.side + "'s " + this.card.name + " died");
         if (this.card.isLeader) {
             alert("DEFEAT - Leader died");

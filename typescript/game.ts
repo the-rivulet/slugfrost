@@ -1,3 +1,4 @@
+import type { Ability } from "./ability.js";
 import type { Action } from "./action.js";
 import type { Card, ClunkerCard, CompanionCard, ItemCard, UnitCard } from "./card.js";
 
@@ -248,6 +249,9 @@ class Game {
       shuffleArray(p.drawPile);
       for(let i of p.drawPile) {
         i.curEffects = structuredClone(i.baseEffects.slice(0));
+        for(let a of i.abilities) {
+          if(hasMagicNumber(a)) {a.magic = a.baseMagic;}
+        }
         i.init(); // reset stuff
       }
       p.hand = [];
@@ -279,6 +283,12 @@ class Game {
       for(let i of p.deckpack) {
         i.init(); // reset stuff
         i.curEffects = structuredClone(i.baseEffects.slice(0));
+        for(let a of i.abilities) {
+          if(hasMagicNumber(a)) {
+            a.magic = a.baseMagic;
+            i.updateElement(); // show the updated num
+          }
+        }
       }
     }
     if(!this.firstCombat) {
@@ -347,6 +357,7 @@ export class Player {
     if(this.hand.includes(card)) this.hand.splice(this.hand.indexOf(card), 1);
     // you can exile cards from the field too
     this.exilePile.push(card);
+    card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
     card.element.style.opacity = "0";
     this.updateHand();
   }
@@ -383,6 +394,14 @@ export interface HasCondition extends ItemCard {
 }
 export function hasCondition(x: ItemCard): x is HasCondition {
   return "condition" in x && typeof x.condition == "function";
+}
+
+export interface HasMagicNumber extends Ability {
+  baseMagic: number;
+  magic: number;
+}
+export function hasMagicNumber(ability: Ability): ability is HasMagicNumber {
+  return "baseMagic" in ability && typeof ability.baseMagic == "number";
 }
 
 export enum Side { left = "left", right = "right" }

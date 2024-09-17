@@ -42,9 +42,6 @@ export class CustomEffect extends Effect {
         this.use = use;
     }
 }
-export function hasMagicNumber(ability) {
-    return "baseMagic" in ability && typeof ability.baseMagic == "number";
-}
 export class UniqueAbility extends Ability {
     constructor(id, owner, text, isReaction, use) {
         super(owner);
