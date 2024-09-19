@@ -98,8 +98,8 @@ export class BigBerryCard extends CompanionCard {
 export class BonnieCard extends CompanionCard {
     constructor() {
         super(...arguments);
-        this.name = "Big Berry";
-        this.id = `slugfrost.bigBerry`;
+        this.name = "Bonnie";
+        this.id = `slugfrost.bonnie`;
         this.baseHealth = 4;
         this.baseCounter = 4;
         this.abilities = [

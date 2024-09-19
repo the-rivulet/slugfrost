@@ -82,8 +82,8 @@ export class BigBerryCard extends CompanionCard implements HasAttack, HasCounter
 }
 
 export class BonnieCard extends CompanionCard implements HasCounter {
-  name = "Big Berry";
-  id = `slugfrost.bigBerry`;
+  name = "Bonnie";
+  id = `slugfrost.bonnie`;
   baseHealth = 4;
   baseCounter = 4;
   abilities = [
