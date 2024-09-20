@@ -172,7 +172,6 @@ try {
     new SunRodCard(rivu),
     new FlamewaterCard(rivu),
     new WoodheadCard(rivu),
-    new DragonPepperCard(rivu)
   ];
   for(let i of startingDeck) i.init();
   const arti = new Player(1, false);
