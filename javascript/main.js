@@ -163,6 +163,8 @@ try {
         game.updateMap();
     };
     getId("event-woollysnail").onclick = function () {
+        for (let i of Array.from(getId("event-woollysnail").children))
+            i.remove();
         getId("worldmap").style.top = "0%";
         getId("event-woollysnail").style.top = "-100%";
         if (game.inDeckView)
@@ -218,6 +220,7 @@ try {
         new SunRodCard(rivu),
         new FlamewaterCard(rivu),
         new WoodheadCard(rivu),
+        new DragonPepperCard(rivu)
     ];
     for (let i of startingDeck)
         i.init();

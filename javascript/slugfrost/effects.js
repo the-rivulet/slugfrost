@@ -55,7 +55,7 @@ export class SpiceEffect extends Effect {
             ac.amount += this.amount;
         }
         else if (ac instanceof TriggerAction && hasAttack(ac.card) && ac.card instanceof UnitCard && ac.card == this.owner && ac.isFirst) {
-            new ApplyEffectAction(this.asAbility, ac.card, t => new FrostEffect(t, -1 * this.amount)).queue();
+            new ApplyEffectAction(this.asAbility, ac.card, t => new SpiceEffect(t, -1 * this.amount)).queue();
         }
         else if (ac instanceof GetDisplayedAttackAction && hasAttack(this.owner) && ac.card == this.owner) {
             ac.amount += this.amount;

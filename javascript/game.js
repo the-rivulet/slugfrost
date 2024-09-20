@@ -281,6 +281,7 @@ class Game {
                     }
                 }
                 i.init();
+                i.updateElement();
             }
             p.hand = [];
             p.discardPile = [];
@@ -313,14 +314,15 @@ class Game {
             while (p.hand.length)
                 p.discard(p.hand[0]);
             for (let i of p.deckpack) {
-                i.init();
                 i.curEffects = structuredClone(i.baseEffects.slice(0));
+                log("Reset " + i.name + "'s effects -> " + i.curEffects.map(x => x.name) + " (" + i.baseEffects.map(x => x.name) + ")");
                 for (let a of i.abilities) {
                     if (hasMagicNumber(a)) {
                         a.magic = a.baseMagic;
-                        i.updateElement();
                     }
                 }
+                i.init();
+                i.updateElement();
             }
         }
         if (!this.firstCombat) {
