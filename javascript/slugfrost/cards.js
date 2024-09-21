@@ -18,7 +18,7 @@ export class SnowStickCard extends ItemCard {
         this.name = "Snow Stick";
         this.id = `slugfrost.snowStick`;
         this.baseAttack = 1;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 2, "Snow")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 2)];
     }
 }
 export class SunRodCard extends ItemCard {
@@ -79,7 +79,7 @@ export class BijiCard extends CompanionCard {
         this.baseAttack = 0;
         this.baseCounter = 4;
         this.abilities = [
-            new ApplyEffectAbility(this, (t, x) => new BomEffect(t, x), 3, "Bom"),
+            new ApplyEffectAbility(this, (t, x) => new BomEffect(t, x), 3),
             new IncreaseWhenHitAbility(this, 1)
         ];
     }
@@ -129,7 +129,7 @@ export class FirefistCard extends CompanionCard {
         this.baseHealth = 12;
         this.baseAttack = 2;
         this.baseCounter = 5;
-        this.abilities = [new GainEqualEffectWhenHealthLostAbility(this, (t, x) => new SpiceEffect(t, x), "Spice")];
+        this.abilities = [new GainEqualEffectWhenHealthLostAbility(this, (t, x) => new SpiceEffect(t, x))];
     }
 }
 export class PyraCard extends CompanionCard {
@@ -139,7 +139,7 @@ export class PyraCard extends CompanionCard {
         this.id = `slugfrost.pyra`;
         this.baseHealth = 6;
         this.baseCounter = 4;
-        this.abilities = [new ApplyEffectToAllyBehindAbility(this, (t, x) => new SpiceEffect(t, x), 4, "Spice")];
+        this.abilities = [new ApplyEffectToAllyBehindAbility(this, (t, x) => new SpiceEffect(t, x), 4)];
     }
 }
 export class SnobbleCard extends CompanionCard {
@@ -150,7 +150,7 @@ export class SnobbleCard extends CompanionCard {
         this.baseHealth = 5;
         this.baseAttack = 2;
         this.baseCounter = 4;
-        this.abilities = [new ApplyEffectEqualToDamageAbility(this, (t, x) => new SnowEffect(t, x), "Snow")];
+        this.abilities = [new ApplyEffectEqualToDamageAbility(this, (t, x) => new SnowEffect(t, x))];
     }
 }
 export class BlazeTeaCard extends ItemCard {
@@ -192,7 +192,7 @@ export class BlizzardBottleCard extends ItemCard {
         this.name = "Blizzard Bottle";
         this.id = `slugfrost.blizzardBottle`;
         this.baseAttack = 0;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 3, "Snow")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 3)];
     }
 }
 export class FrostBellCard extends ItemCard {
@@ -202,7 +202,7 @@ export class FrostBellCard extends ItemCard {
         this.id = `slugfrost.frostBell`;
         this.baseAttack = 0;
         this.abilities = [
-            new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 2, "Frost"),
+            new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 2),
             new BarrageAbility(this)
         ];
     }
@@ -213,7 +213,7 @@ export class FrostbloomCard extends ItemCard {
         this.name = "Frostbloom";
         this.id = `slugfrost.frostbloom`;
         this.baseAttack = 0;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 3, "Frost")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 3)];
         this.condition = (card) => hasAttack(card);
     }
 }
@@ -277,7 +277,7 @@ export class PeppereaperCard extends ItemCard {
         this.name = "PepperReaper";
         this.id = `slugfrost.peppereaper`;
         this.baseAttack = 1;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SpiceEffect(t, x), 4, "Spice")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SpiceEffect(t, x), 4)];
         this.condition = (card) => hasAttack(card);
     }
 }
@@ -286,7 +286,7 @@ export class PepperingCard extends ItemCard {
         super(...arguments);
         this.name = "PepperRing";
         this.id = `slugfrost.peppering`;
-        this.abilities = [new ApplyEffectToAlliesAbility(this, (t, x) => new SpiceEffect(t, x), 2, "Spice")];
+        this.abilities = [new ApplyEffectToAlliesAbility(this, (t, x) => new SpiceEffect(t, x), 2)];
         this.condition = (card) => hasAttack(card);
     }
 }
@@ -296,7 +296,7 @@ export class DragonPepperCard extends ItemCard {
         this.name = "Dragon Pepper";
         this.id = `slugfrost.dragonPepper`;
         this.abilities = [
-            new ApplyEffectAbility(this, (t, x) => new SpiceEffect(t, x), 7, "Spice"),
+            new ApplyEffectAbility(this, (t, x) => new SpiceEffect(t, x), 7),
             new ConsumeAbility(this)
         ];
         this.condition = (card) => hasAttack(card);
@@ -308,7 +308,7 @@ export class SnowcakeCard extends ItemCard {
         this.name = "Snowcake";
         this.id = `slugfrost.snowcake`;
         this.abilities = [
-            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 5, "Snow"),
+            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 5),
             new ConsumeAbility(this)
         ];
     }
@@ -390,7 +390,7 @@ export class WildSnoolfCard extends CompanionCard {
         this.baseHealth = 4;
         this.baseAttack = 1;
         this.baseCounter = 3;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 2, "Snow")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 2)];
     }
 }
 export class BigPengCard extends CompanionCard {
@@ -413,7 +413,7 @@ export class FrostingerCard extends CompanionCard {
         this.baseHealth = 8;
         this.baseAttack = 1;
         this.baseCounter = 3;
-        this.abilities = [new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 1, "Frost")];
+        this.abilities = [new ApplyEffectAbility(this, (t, x) => new FrostEffect(t, x), 1)];
     }
 }
 export class IceLanternCard extends ClunkerCard {
@@ -456,7 +456,7 @@ export class SnowbirbCard extends CompanionCard {
         this.baseCounter = 3;
         this.abilities = [
             new LongshotAbility(this),
-            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 4, "Snow")
+            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 4)
         ];
     }
 }
@@ -470,7 +470,7 @@ export class TheRingerCard extends CompanionCard {
         this.baseAttack = 5;
         this.baseCounter = 5;
         this.abilities = [
-            new ApplyEffectToRandomEnemyWhenHitAbility(this, (t, x) => new FrostEffect(t, x), 2, "Frost"),
+            new ApplyEffectToRandomEnemyWhenHitAbility(this, (t, x) => new FrostEffect(t, x), 2),
             new ResistEffectAbility(this, 1, `base.snow`)
         ];
     }
@@ -528,7 +528,7 @@ export class BamTwozleCard extends CompanionCard {
         this.baseAttack = 9;
         this.baseCounter = 6;
         this.abilities = [
-            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 3, "Snow"),
+            new ApplyEffectAbility(this, (t, x) => new SnowEffect(t, x), 3),
             new ResistEffectAbility(this, 1, `base.snow`),
         ];
     }

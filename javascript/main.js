@@ -1,4 +1,4 @@
-import { game, getId, Player, ui, log } from "./game.js";
+import { game, getId, Player, ui, log, applyTheme, themeColors } from "./game.js";
 import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
 import { ClunkerCard, ItemCard, UnitCard } from "./card.js";
 try {
@@ -61,8 +61,8 @@ try {
         try {
             if (game.resolving)
                 return;
-            if (game.players.find(x => x.hand.find(y => y.isLeader))) {
-                log(game.players.map(x => x.side + " : [" + x.hand.map(x => x.name + "=" + x.isLeader) + "]"));
+            if (game.players.find(x => x.hand.find(y => y.leader))) {
+                log(game.players.map(x => x.side + " : [" + x.hand.map(x => x.name + "=" + x.leader) + "]"));
                 return;
             }
             for (let i of game.players) {
@@ -98,16 +98,12 @@ try {
         try {
             for (let offset = 0; offset < rivu.deckpack.length; offset += rowSize) {
                 let row = rivu.deckpack.slice(offset, offset + rowSize);
-                log(row.map(x => x.name));
                 for (let card of row) {
-                    log(card.name);
-                    log(card.element + " " + card.element.style.opacity + " " + card.element.style.display);
                     let i = row.indexOf(card);
                     card.element.style.left = `calc(50% - 110px * ${i} + 55px * ${row.length - 2})`;
                     card.element.style.bottom = 10 + offset * (150 / rowSize) + "px";
                     card.element.style.opacity = "1";
                     card.element.style.display = "";
-                    log(card.element + " " + card.element.style.opacity + " " + card.element.style.display);
                 }
             }
         }
@@ -186,28 +182,46 @@ try {
             deckView();
         }
     };
+    let tcount = 0;
+    log("Applying");
+    applyTheme(0);
     document.onkeydown = function (e) {
-        if (e.key == "q") {
+        if (e.repeat)
+            return;
+        if (e.key == "Tab") {
+            e.preventDefault();
             if (getId("log").style.opacity == "0")
                 getId("log").style.opacity = "";
             else
                 getId("log").style.opacity = "0";
         }
-        else if (e.key == "r") {
+        else if (e.key == "f") {
             if (game.actionDelay == 500)
                 game.actionDelay = 100;
             else
                 game.actionDelay = 100;
+            log("Set action delay to " + game.actionDelay);
         }
-        else if (e.key == "s") {
+        else if (e.key == "r") {
             for (let i of game.battlefield)
                 i.updateElement();
         }
+        else if (e.key == "t") {
+            if (tcount + 1 == themeColors.length)
+                tcount = 0;
+            else
+                tcount++;
+            applyTheme(tcount);
+        }
+    };
+    document.onmousemove = function (e) {
+        getId("tip").style.left = e.clientX + 20 + "px";
+        getId("tip").style.top = e.clientY + 20 + "px";
     };
     log("Running script...");
     const rivu = new Player(0, true);
     const foxi = new FoxeeCard(rivu);
-    foxi.isLeader = true;
+    foxi.leader = true;
     foxi.crowned = true;
     let startingDeck = [
         foxi,

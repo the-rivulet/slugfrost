@@ -1,5 +1,8 @@
 import { game, log, hasAttack, getId, ui } from "./game.js";
 export class Action {
+    constructor() {
+        this.showLogs = true;
+    }
     execute() {
         try {
             for (let i of game.cardsByPos()) {
@@ -22,7 +25,8 @@ export class Action {
                     }
                 }
             }
-            log("=".repeat(game.actionStack.length) + "> Running: " + this.id);
+            if (this.showLogs)
+                log("=".repeat(game.actionStack.length) + "> Running: " + this.id);
             return this.run();
         }
         catch (e) {
@@ -30,11 +34,13 @@ export class Action {
         }
     }
     stack() {
-        log("=".repeat(game.actionStack.length) + "> Stacking: " + this.id);
+        if (this.showLogs)
+            log("=".repeat(game.actionStack.length) + "> Stacking: " + this.id);
         game.actionStack.push(this);
     }
     queue() {
-        log("=".repeat(game.actionStack.length) + "> Queueing: " + this.id);
+        if (this.showLogs)
+            log("=".repeat(game.actionStack.length) + "> Queueing: " + this.id);
         game.actionStack.unshift(this);
     }
 }
@@ -68,6 +74,7 @@ export class FindTargetsAction extends Action {
     constructor(source, firstTarget, random = 0) {
         super();
         this.id = `base.findTargets`;
+        this.showLogs = false;
         this.random = 0;
         this.source = source;
         this.targets = [firstTarget];
@@ -84,6 +91,7 @@ export class GetDisplayedAttackAction extends Action {
     constructor(card, amount) {
         super();
         this.id = `base.getDisplayedAttack`;
+        this.showLogs = false;
         this.card = card;
         this.amount = amount;
     }
@@ -303,7 +311,7 @@ export class DieAction extends Action {
         if (ui.currentlyPlaying == this.card)
             ui.deselect();
         log("p" + this.card.owner.side + "'s " + this.card.name + " died");
-        if (this.card.isLeader) {
+        if (this.card.leader) {
             alert("DEFEAT - Leader died");
             log("DEFEAT - Leader died");
         }

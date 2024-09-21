@@ -2,6 +2,7 @@ import { FindTargetsAction, TempModifyCounterAction, ApplyEffectAction } from ".
 import { game, Side } from "./game.js";
 export class Ability {
     constructor(owner) {
+        this.tooltipText = "";
         this.owner = owner;
     }
 }
@@ -70,6 +71,7 @@ export class BarrageAbility extends Ability {
         super(...arguments);
         this.id = `base.targeting.barrage`;
         this.text = "Barrage";
+        this.tooltipText = "Hits all targets in the row";
         this.isReaction = false;
     }
     use(ac) {
@@ -83,6 +85,7 @@ export class AimlessAbility extends Ability {
         super(...arguments);
         this.id = `base.targeting.aimless`;
         this.text = "Aimless";
+        this.tooltipText = "Hits a random target in the row";
         this.isReaction = false;
     }
     use(ac) {
@@ -97,6 +100,7 @@ export class LongshotAbility extends Ability {
         super(...arguments);
         this.id = `base.targeting.longshot`;
         this.text = "Longshot";
+        this.tooltipText = "Hits the last target in the row";
         this.isReaction = false;
     }
     use(ac) {
@@ -110,6 +114,7 @@ export class ConsumeAbility extends Ability {
         super(owner);
         this.id = `base.consume`;
         this.text = "Consume";
+        this.tooltipText = "Once per battle";
         this.isReaction = false;
     }
     use(ac) { }

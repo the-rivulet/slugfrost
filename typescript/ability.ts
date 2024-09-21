@@ -6,6 +6,7 @@ export abstract class Ability {
   abstract id: string;
   owner: Card;
   abstract text: string;
+  tooltipText = "";
   abstract isReaction: boolean;
   abstract use(ac: Action): void;
   constructor(owner: Card) {
@@ -97,6 +98,7 @@ export class HitsAllEnemiesAbility extends Ability {
 export class BarrageAbility extends Ability {
   id = `base.targeting.barrage`;
   text = "Barrage";
+  tooltipText = "Hits all targets in the row";
   isReaction = false;
   use(ac: Action) {
     if(ac instanceof FindTargetsAction && ac.source == this.owner) {
@@ -108,6 +110,7 @@ export class BarrageAbility extends Ability {
 export class AimlessAbility extends Ability {
   id = `base.targeting.aimless`;
   text = "Aimless";
+  tooltipText = "Hits a random target in the row";
   isReaction = false;
   use(ac: Action) {
     if(ac instanceof FindTargetsAction && ac.source == this.owner) {
@@ -120,6 +123,7 @@ export class AimlessAbility extends Ability {
 export class LongshotAbility extends Ability {
   id = `base.targeting.longshot`;
   text = "Longshot";
+  tooltipText = "Hits the last target in the row";
   isReaction = false;
   use(ac: Action) {
     if(ac instanceof FindTargetsAction && ac.source == this.owner) {
@@ -132,6 +136,7 @@ export class LongshotAbility extends Ability {
 export class ConsumeAbility extends Ability {
   id = `base.consume`;
   text = "Consume";
+  tooltipText = "Once per battle";
   isReaction = false;
   owner: ItemCard;
   constructor(owner: ItemCard) {

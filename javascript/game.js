@@ -51,8 +51,8 @@ class Game {
     resolveNext() { this.actionStack.pop().execute(); }
     resolveAll() {
         this.resolving = this.actionStack.length > 0;
-        document.body.style.background = this.resolving ? "black" : "";
         if (this.resolving) {
+            document.body.classList.add("resolving");
             this.resolveNext();
             setTimeout(() => { this.resolveAll(); }, this.actionDelay);
         }
@@ -64,6 +64,8 @@ class Game {
             this.readyToEnd = false;
             this.endTurn();
         }
+        if (!this.resolving)
+            document.body.classList.remove("resolving");
     }
     endTurn(side) {
         try {
@@ -248,10 +250,10 @@ class Game {
     updateMap() {
         for (let i of Array.from(document.getElementsByClassName("mapitem"))) {
             if (Math.abs(parseInt(i.id.split("-")[1]) - this.mapY) < 2 && parseInt(i.id.split("-")[2]) == 1 + this.mapX) {
-                i.style.background = "purple";
+                i.classList.add("curmap");
             }
             else
-                i.style.background = "";
+                i.classList.remove("curmap");
         }
     }
     startCombat() {
@@ -437,3 +439,10 @@ export const ui = {
         ui.currentlyPlaying = undefined;
     }
 };
+export let themeColors = [
+    ["#333", "black", "blue", "#a0a", "#333", "#666", "white"],
+];
+export function applyTheme(theme) {
+    let t = themeColors[theme];
+    document.body.style.cssText = t.map((x, i) => "--theme-color-" + i + ": " + x + ";").join(" ");
+}

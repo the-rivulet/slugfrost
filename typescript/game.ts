@@ -52,8 +52,8 @@ class Game {
   resolveNext() { this.actionStack.pop().execute(); }
   resolveAll() {
     this.resolving = this.actionStack.length > 0;
-    document.body.style.background = this.resolving ? "black" : "";
     if(this.resolving) {
+      document.body.classList.add("resolving");
       this.resolveNext();
       setTimeout(() => { this.resolveAll(); }, this.actionDelay);
     } else if(!this.waveBellTime) {
@@ -63,6 +63,7 @@ class Game {
       this.readyToEnd = false;
       this.endTurn();
     }
+    if(!this.resolving) document.body.classList.remove("resolving");
   }
   endTurn(side?: number) { try {
     if(this.actionStack.length) {
@@ -225,8 +226,8 @@ class Game {
   updateMap() {
     for(let i of Array.from(document.getElementsByClassName("mapitem")) as HTMLElement[]) {
       if(Math.abs(parseInt(i.id.split("-")[1]) - this.mapY) < 2 && parseInt(i.id.split("-")[2]) == 1 + this.mapX) {
-        i.style.background = "purple";
-      } else i.style.background = "";
+        i.classList.add("curmap");
+      } else i.classList.remove("curmap");
     }
   }
   startCombat() {
@@ -424,3 +425,11 @@ export const ui: UIData = {
     ui.currentlyPlaying = undefined;
   }
 };
+
+export let themeColors = [
+  ["#333", "black", "blue", "#a0a", "#333", "#666", "white"],
+];
+export function applyTheme(theme: number) {
+  let t = themeColors[theme];
+  document.body.style.cssText = t.map((x, i) => "--theme-color-" + i + ": " + x + ";").join(" ");
+}

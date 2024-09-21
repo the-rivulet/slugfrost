@@ -5,6 +5,7 @@ import { game, log, HasAttack, HasCounter, Side, hasAttack, getId, Player, ui } 
 export abstract class Action<T = void> {
   abstract id: string;
   abstract run(): T;
+  showLogs = true;
   execute() { try {
     // Look for abilities.
     for(let i of game.cardsByPos()) {
@@ -27,15 +28,15 @@ export abstract class Action<T = void> {
         }
       }
     }
-    log("=".repeat(game.actionStack.length) + "> Running: " + this.id);
+    if(this.showLogs) log("=".repeat(game.actionStack.length) + "> Running: " + this.id);
     return this.run();
   } catch(e) {log("Error in " + this.id + "'s execution: " + e);} }
   stack() {
-    log("=".repeat(game.actionStack.length) + "> Stacking: " + this.id);
+    if(this.showLogs) log("=".repeat(game.actionStack.length) + "> Stacking: " + this.id);
     game.actionStack.push(this);
   }
   queue() {
-    log("=".repeat(game.actionStack.length) + "> Queueing: " + this.id);
+    if(this.showLogs) log("=".repeat(game.actionStack.length) + "> Queueing: " + this.id);
     game.actionStack.unshift(this);
   }
 }
@@ -72,6 +73,7 @@ export class FinishedPlayingAction extends Action {
 
 export class FindTargetsAction extends Action<Card[]> {
   id = `base.findTargets`;
+  showLogs = false;
   source: Card;
   targets: Card[];
   random = 0;
@@ -91,6 +93,7 @@ export class FindTargetsAction extends Action<Card[]> {
 
 export class GetDisplayedAttackAction extends Action<number> {
   id = `base.getDisplayedAttack`;
+  showLogs = false;
   card: HasAttack;
   amount: number;
   constructor(card: HasAttack, amount: number) {
@@ -348,7 +351,7 @@ export class DieAction extends Action {
     this.card.owner.exile(this.card);
     if(ui.currentlyPlaying == this.card) ui.deselect();
     log("p" + this.card.owner.side + "'s " + this.card.name + " died");
-    if(this.card.isLeader) {
+    if(this.card.leader) {
       alert("DEFEAT - Leader died");
       log("DEFEAT - Leader died");
     }

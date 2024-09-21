@@ -3,10 +3,13 @@
   src: url(./assets/uiua.ttf);
 }
 body {
-  background: #222;
-  color: white;
+  background: var(--theme-color-0);
+  color: var(--theme-color-6);
   font-family: Uiua;
   font-size: 12px;
+}
+body.resolving {
+  background: var(--theme-color-4);
 }
 #log {
   z-index: 99;
@@ -19,8 +22,8 @@ body {
   position: absolute;
   width: 90px;
   height: 130px;
-  background: black;
-  border: 1px solid white;
+  background: var(--theme-color-1);
+  border: 1px solid var(--theme-color-6);
   transition: 0.3s;
   text-align: center;
   bottom: 10px;
@@ -46,7 +49,7 @@ body {
 }
 .currentlyPlaying {
   bottom: 50px;
-  background: blue;
+  background: var(--theme-color-2);
 }
 .leader {
   color: aqua;
@@ -69,9 +72,12 @@ body {
   transition: 0.3s;
 }
 .slot {
-  background: gray;
-  border: 1px solid black;
+  background: var(--theme-color-5);
+  border: 1px solid var(--theme-color-1);
   border-radius: 10px;
+}
+.slot.rightside {
+  background: var(--theme-color-3);
 }
 #slot-0-0-0 { grid-area: a; }
 #slot-0-0-1 { grid-area: b; }
@@ -79,12 +85,12 @@ body {
 #slot-0-1-1 { grid-area: d; }
 #slot-0-2-0 { grid-area: e; }
 #slot-0-2-1 { grid-area: f; }
-#slot-1-0-0 { grid-area: g; background: purple; }
-#slot-1-0-1 { grid-area: h; background: purple; }
-#slot-1-1-0 { grid-area: i; background: purple; }
-#slot-1-1-1 { grid-area: j; background: purple; }
-#slot-1-2-0 { grid-area: k; background: purple; }
-#slot-1-2-1 { grid-area: l; background: purple; }
+#slot-1-0-0 { grid-area: g; }
+#slot-1-0-1 { grid-area: h; }
+#slot-1-1-0 { grid-area: i; }
+#slot-1-1-1 { grid-area: j; }
+#slot-1-2-0 { grid-area: k; }
+#slot-1-2-1 { grid-area: l; }
 .bell {
   cursor: pointer;
   position: absolute;
@@ -92,7 +98,7 @@ body {
   right: 20px;
   border-radius: 10px;
   padding: 10px;
-  background: #333;
+  background: var(--theme-color-5);
   z-index: 50;
 }
 #wavebell {
@@ -104,7 +110,7 @@ body {
   left: 20px;
   border-radius: 10px;
   padding: 10px;
-  background: #555;
+  background: var(--theme-color-5);
   color: yellow;
   z-index: 50;
 }
@@ -114,7 +120,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: darkslateblue;
+  background: var(--theme-color-4);
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: auto;
@@ -125,13 +131,16 @@ body {
   transition: 0.3s;
 }
 .mapitem {
-  background: blue;
-  border: 1px solid black;
+  background: var(--theme-color-2);
+  border: 1px solid var(--theme-color-1);
   border-radius: 10px;
   text-align: center;
   padding: 20px;
   user-select: none;
   transition: 0.3s;
+}
+.curmap {
+  background: var(--theme-color-3);
 }
 #map-0-1 { grid-area: aa; }
 #map-0-2 { grid-area: ab; }
@@ -151,7 +160,7 @@ body {
   left: 10%;
   width: 80%;
   height: calc(80% - 150px);
-  background: #333;
+  background: var(--theme-color-4);
   padding: 5px;
   border-radius: 10px;
   text-align: center;
@@ -161,4 +170,14 @@ body {
   position: absolute;
   bottom: 10px;
   color: yellow;
+}
+#tip {
+  z-index: 101;
+  position: absolute;
+  background: var(--theme-color-4);
+  padding: 10px;
+  border-radius: 10px;
+}
+#tip:empty {
+  display: none;
 }

@@ -5,18 +5,17 @@ import { game, getId, HasAttack, hasAttack, hasCounter, hasMagicNumber, HasMagic
 
 export class ApplyEffectAbility extends Ability implements HasMagicNumber {
   id = `slugfrost.applyEffect`;
-  get text() { return `Apply ${this.magic} ${this.name}`; }
+  get text() { return `Apply ${this.magic} ${this.makeEffect(undefined, 0).name}`; }
   isReaction = false;
   baseMagic: number;
   magic: number;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number, name: string) {
+  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number) {
     super(owner);
     this.makeEffect = makeEffect;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
     this.baseMagic = amount;
     this.magic = amount;
-    this.name = name;
   }
   use(ac: Action) {
     if(ac instanceof HitAction && ac.source == this.owner && ac.target instanceof UnitCard) {
@@ -27,14 +26,13 @@ export class ApplyEffectAbility extends Ability implements HasMagicNumber {
 
 export class ApplyEffectEqualToDamageAbility extends Ability {
   id = `slugfrost.applyEffectEqualToDamage`;
-  get text() { return `Apply ${this.name} equal to damage dealt`; }
+  get text() { return `Apply ${this.makeEffect(undefined, 0).name} equal to damage dealt`; }
   isReaction = false;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect, name: string) {
+  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect) {
     super(owner);
     this.makeEffect = makeEffect;
-    this.name = name;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
   }
   use(ac: Action) {
     if(ac instanceof TakeDamageAction && ac.source == this.owner) {
@@ -45,19 +43,18 @@ export class ApplyEffectEqualToDamageAbility extends Ability {
 
 export class ApplyEffectToAllyBehindAbility extends Ability implements HasMagicNumber {
   id = `slugfrost.applyEffectToAllyBehind`;
-  get text() { return `Apply ${this.magic} ${this.name} to ally behind`; }
+  get text() { return `Apply ${this.magic} ${this.makeEffect(undefined, 0).name} to ally behind`; }
   isReaction = false;
   owner: UnitCard;
   baseMagic: number;
   magic: number;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number, name: string) {
+  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number) {
     super(owner);
     this.makeEffect = makeEffect;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
     this.baseMagic = amount;
     this.magic = amount;
-    this.name = name;
   }
   use(ac: Action) {
     if(ac instanceof HitAction && ac.source == this.owner && game.cardsByPos(this.owner.owner.side, this.owner.fieldPos.row, this.owner.fieldPos.column + 1)) {
@@ -68,18 +65,17 @@ export class ApplyEffectToAllyBehindAbility extends Ability implements HasMagicN
 
 export class ApplyEffectToAlliesAbility extends Ability implements HasMagicNumber {
   id = `slugfrost.applyEffectToAllies`;
-  get text() { return `Apply ${this.magic} ${this.name} to all allies`; }
+  get text() { return `Apply ${this.magic} ${this.makeEffect(undefined, 0).name} to all allies`; }
   isReaction = false;
   baseMagic: number;
   magic: number;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number, name: string) {
+  constructor(owner: Card, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number) {
     super(owner);
     this.makeEffect = makeEffect;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
     this.baseMagic = amount;
     this.magic = amount;
-    this.name = name;
   }
   use(ac: Action) {
     if(ac instanceof HitAction && ac.source == this.owner) {
@@ -92,19 +88,18 @@ export class ApplyEffectToAlliesAbility extends Ability implements HasMagicNumbe
 
 export class ApplyEffectToRandomEnemyWhenHitAbility extends Ability implements HasMagicNumber {
   id = `slugfrost.applyEffectToRandomEnemyWhenHit`;
-  get text() { return `When hit, apply ${this.magic} ${this.name} to a random enemy`; }
+  get text() { return `When hit, apply ${this.magic} ${this.makeEffect(undefined, 0).name} to a random enemy`; }
   isReaction = false;
   owner: UnitCard;
   baseMagic: number;
   magic: number;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number, name: string) {
+  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect, amount: number) {
     super(owner);
     this.makeEffect = makeEffect;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
     this.baseMagic = amount;
     this.magic = amount;
-    this.name = name;
   }
   use(ac: Action) {
     if(ac instanceof HitAction && ac.target == this.owner && ac.isAttack) {
@@ -116,15 +111,14 @@ export class ApplyEffectToRandomEnemyWhenHitAbility extends Ability implements H
 
 export class GainEqualEffectWhenHealthLostAbility extends Ability {
   id = `slugfrost.gainEqualEffectWhenHealthLost`;
-  get text() { return `When health lost, apply equal, gain equal ${this.name}`; }
+  get text() { return `When health lost, apply equal, gain equal ${this.makeEffect(undefined, 0).name}`; }
   isReaction = false;
   owner: UnitCard;
-  name: string;
   makeEffect: (target: UnitCard, amount: number) => Effect;
-  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect, name: string) {
+  constructor(owner: UnitCard, makeEffect: (target: UnitCard, amount: number) => Effect) {
     super(owner);
     this.makeEffect = makeEffect;
-    this.name = name;
+    this.tooltipText = this.makeEffect(undefined, 0).text;
   }
   use(ac: Action) {
     if(ac instanceof TakeDamageAction && ac.target == this.owner && ac.amount > 0) {
@@ -276,6 +270,7 @@ export class EscapeFromBattleAbility extends Ability {
 export class SmackbackAbility extends Ability {
   id = `slugfrost.smackback`;
   text = "Smackback";
+  tooltipText = "When attacked, hits back";
   isReaction = true;
   use(ac: Action) {
     if(ac instanceof HitAction && ac.target == this.owner && ac.isAttack && ac.source instanceof UnitCard && this.owner instanceof UnitCard) {
@@ -515,6 +510,7 @@ export class DealDamageBackWhenHitAbility extends Ability {
 export class BarrageToAlliesAbility extends Ability {
   id = `slugfrost.targeting.barrageToAllies`;
   text = "Allies gain Barrage";
+  tooltipText = "They hit all targets in the row";
   isReaction = false;
   use(ac: Action) {
     if(ac instanceof FindTargetsAction && ac.source instanceof UnitCard && ac.source.owner.side == this.owner.owner.side && (this.owner as UnitCard).fieldPos) {
@@ -542,7 +538,7 @@ export class IncreaseDamageByHealthAbility extends Ability {
 
 export class ResistEffectAbility extends Ability {
   id = `slugfrost.resistEffect`;
-  get text() {return `Max ${this.amount} ${this.effectId.split(".")[1]}`;}
+  get text() {return `Max ${this.amount} ${(this.effectId.split(".")[1])[0].toUpperCase() + (this.effectId.split(".")[1]).slice(1)}`;}
   isReaction = false;
   owner: UnitCard;
   amount: number;
@@ -614,6 +610,7 @@ export class SummonUnitWhenKilledAbility extends Ability {
 export class WildAbility extends Ability {
   id = `slugfrost.wild`;
   text = "Wild";
+  tooltipText = "Gain 1 Frenzy when another Wild card is killed";
   isReaction = false;
   owner: UnitCard;
   constructor(owner: UnitCard) {

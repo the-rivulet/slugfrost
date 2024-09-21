@@ -8,8 +8,9 @@ export class Card {
         this.curEffects = [];
         this.charms = [];
         this.crowned = false;
-        this.isLeader = false;
+        this.leader = false;
         this.frenzy = 1;
+        this.hovered = false;
         this.owner = owner;
         if (addToDeck) {
             owner.deckpack.push(this);
@@ -22,10 +23,32 @@ export class Card {
             owner.updateHand();
         }
     }
+    onhover() {
+        getId("tip").innerHTML = `
+      ${this.name}<br/>
+      ${this instanceof ClunkerCard ? this.curScrap + " (" + this.baseScrap + ") Scrap<br/>" : ""}
+      ${this instanceof CompanionCard ? this.curHealth + "/" + this.maxHealth + " (" + this.baseHealth + ") Health<br/>" : ""}
+      ${hasAttack(this) ? this.curAttack + " (" + this.baseAttack + ") Attack<br/>" : ""}
+      ${this instanceof CompanionCard && hasCounter(this) ? this.curCounter + "/" + this.maxCounter + " (" + this.baseCounter + ") Counter<br/>" : ""}
+      ${this.curEffects.map(x => x.amount + " " + x.name + ": " + x.text + "<br/>").join("")}
+      ${this.abilities.map(x => x.text + (x.tooltipText ? " (" + x.tooltipText + ")" : "") + (x.text.length ? "<br/>" : "")).join("")}
+    `;
+        this.hovered = true;
+    }
+    onunhover() {
+        getId("tip").innerHTML = "";
+        this.hovered = false;
+    }
     createElement() {
         this.element = document.createElement("div");
         this.element.classList.add("card");
         this.element.style.opacity = "0";
+        this.element.onmouseenter = (e) => {
+            this.onhover();
+        };
+        this.element.onmouseleave = (e) => {
+            this.onunhover();
+        };
         this.element.onmousedown = (e) => {
             if (ui.currentlyPlaying instanceof ItemCard && ((this instanceof UnitCard && this.fieldPos) || ui.currentlyPlaying.canHitHand) && (!hasCondition(ui.currentlyPlaying) || ui.currentlyPlaying.condition(this)) && game.inCombat) {
                 if (game.resolving)
@@ -49,6 +72,12 @@ export class Card {
     createRewardElement(reward, price, flavorText) {
         this.element = document.createElement("div");
         this.element.classList.add("card");
+        this.element.onmouseenter = (e) => {
+            this.onhover();
+        };
+        this.element.onmouseleave = (e) => {
+            this.onunhover();
+        };
         this.element.onmousedown = (e) => {
             if (game.players[0].blings < price) {
                 log("You can't afford that!");
@@ -69,11 +98,11 @@ export class Card {
     updateElement() {
         if (!this.element)
             this.createElement();
-        if (this.isLeader)
+        if (this.leader)
             this.element.classList.add("leader");
         if (this instanceof CompanionCard && this.boss)
             this.element.classList.add("boss");
-        this.element.innerHTML = this.name + "<br/>" + (this.abilities.map(x => x.text).join("<br/>") || this.text);
+        this.element.innerHTML = this.name + "<br/>" + (this.abilities.map(x => x.text).join("<br/>") || "<span style='color:gray'>" + this.text + "</span>");
         if (hasAttack(this)) {
             let el = Array.from(this.element.children).find(x => x.classList.contains("base-attack"));
             if (!el) {
@@ -113,6 +142,8 @@ export class Card {
             el.style.bottom = Array.from(this.element.children).filter(x => x.classList.contains("cardbottom")).length * 20 + "px";
             el.innerHTML = `<span style='color:${this.curEffects.find(x => x.id == `base.snow`) ? "#77f" : "orange"}'>{!}</span>`;
         }
+        if (this.hovered)
+            this.onhover();
     }
     init() {
         if (hasAttack(this))
