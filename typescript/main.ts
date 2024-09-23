@@ -1,4 +1,4 @@
-import { game, getId, Player, ui, log, shuffleArray, applyTheme, themeColors } from "./game.js";
+import { game, getId, Player, ui, log, shuffleArray, applyTheme, themeColors, tcount } from "./game.js";
 import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GogongCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, NakedGnomeCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
 import { ClunkerCard, CompanionCard, ItemCard, UnitCard } from "./card.js";
 
@@ -139,9 +139,7 @@ try {
       deckView();
     }
   }
-
-  let tcount = 0;
-  log("Applying");
+  
   applyTheme(0);
 
   document.onkeydown = function(e) {
@@ -152,14 +150,22 @@ try {
       else getId("log").style.opacity = "0";
     } else if(e.key == "f") {
       if(game.actionDelay == 500) game.actionDelay = 100;
-      else game.actionDelay = 100;
+      else game.actionDelay = 500;
       log("Set action delay to " + game.actionDelay);
     } else if(e.key == "r") {
       for(let i of game.battlefield) i.updateElement();
+      for(let p of game.players) {
+        for(let i of [...p.hand, ...p.deckpack, ...p.drawPile, ...p.discardPile]) i.updateElement();
+      }
     } else if(e.key == "t") {
-      if(tcount + 1 == themeColors.length) tcount = 0;
-      else tcount++;
-      applyTheme(tcount);
+      if(tcount + 1 == themeColors.length) applyTheme(0);
+      else applyTheme(tcount + 1);
+      log("Changed theme to [" + themeColors[tcount].name + "]");
+      // update
+      for(let i of game.battlefield) i.updateElement();
+      for(let p of game.players) {
+        for(let i of [...p.hand, ...p.deckpack, ...p.drawPile, ...p.discardPile]) i.updateElement();
+      }
     }
   }
   document.onmousemove = function(e) {

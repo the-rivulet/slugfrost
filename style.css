@@ -3,10 +3,11 @@
   src: url(./assets/uiua.ttf);
 }
 body {
-  background: var(--theme-color-0);
-  color: var(--theme-color-6);
+  background: var(--theme-color-5);
+  color: var(--theme-color-7);
   font-family: Uiua;
   font-size: 12px;
+  transition: 0.3s;
 }
 body.resolving {
   background: var(--theme-color-4);
@@ -22,8 +23,8 @@ body.resolving {
   position: absolute;
   width: 90px;
   height: 130px;
-  background: var(--theme-color-1);
-  border: 1px solid var(--theme-color-6);
+  background: var(--theme-color-3);
+  border: 1px solid var(--theme-color-7);
   transition: 0.3s;
   text-align: center;
   bottom: 10px;
@@ -49,13 +50,16 @@ body.resolving {
 }
 .currentlyPlaying {
   bottom: 50px;
-  background: var(--theme-color-2);
+  background: var(--theme-color-1);
 }
 .leader {
-  color: aqua;
+  color: var(--theme-color-0);
 }
 .boss {
-  color: red;
+  color: var(--theme-color-2);
+}
+.leader > .cardname, .boss > .cardname {
+  filter: brightness(180%) contrast(140%);
 }
 #battlefield {
   position: absolute;
@@ -72,12 +76,13 @@ body.resolving {
   transition: 0.3s;
 }
 .slot {
-  background: var(--theme-color-5);
-  border: 1px solid var(--theme-color-1);
+  background: var(--theme-color-0);
+  border: 1px solid var(--theme-color-3);
   border-radius: 10px;
+  transition: 0.3s;
 }
 .slot.rightside {
-  background: var(--theme-color-3);
+  background: var(--theme-color-2);
 }
 #slot-0-0-0 { grid-area: a; }
 #slot-0-0-1 { grid-area: b; }
@@ -98,8 +103,9 @@ body.resolving {
   right: 20px;
   border-radius: 10px;
   padding: 10px;
-  background: var(--theme-color-5);
+  background: var(--theme-color-6);
   z-index: 50;
+  transition: 0.3s;
 }
 #wavebell {
   bottom: 60px;
@@ -110,9 +116,10 @@ body.resolving {
   left: 20px;
   border-radius: 10px;
   padding: 10px;
-  background: var(--theme-color-5);
-  color: yellow;
+  background: var(--theme-color-6);
+  color: var(--theme-color-blings);
   z-index: 50;
+  transition: 0.3s;
 }
 #worldmap {
   position: absolute;
@@ -132,7 +139,7 @@ body.resolving {
 }
 .mapitem {
   background: var(--theme-color-2);
-  border: 1px solid var(--theme-color-1);
+  border: 1px solid var(--theme-color-3);
   border-radius: 10px;
   text-align: center;
   padding: 20px;
@@ -140,7 +147,7 @@ body.resolving {
   transition: 0.3s;
 }
 .curmap {
-  background: var(--theme-color-3);
+  background: var(--theme-color-0);
 }
 #map-0-1 { grid-area: aa; }
 #map-0-2 { grid-area: ab; }
@@ -160,7 +167,7 @@ body.resolving {
   left: 10%;
   width: 80%;
   height: calc(80% - 150px);
-  background: var(--theme-color-4);
+  background: var(--theme-color-6);
   padding: 5px;
   border-radius: 10px;
   text-align: center;
@@ -169,12 +176,12 @@ body.resolving {
 .pricetag {
   position: absolute;
   bottom: 10px;
-  color: yellow;
+  color: var(--theme-color-blings);
 }
 #tip {
   z-index: 101;
   position: absolute;
-  background: var(--theme-color-4);
+  background: var(--theme-color-5);
   padding: 10px;
   border-radius: 10px;
 }

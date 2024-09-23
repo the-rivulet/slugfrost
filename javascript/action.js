@@ -1,4 +1,4 @@
-import { game, log, hasAttack, getId, ui } from "./game.js";
+import { game, log, hasAttack, getId, ui, themeColors, tcount } from "./game.js";
 export class Action {
     constructor() {
         this.showLogs = true;
@@ -222,7 +222,7 @@ export class TempModifyCounterAction extends Action {
             this.target.curCounter = this.target.baseCounter;
         }
         this.target.updateElement();
-        this.target.flash("gold");
+        this.target.flash(themeColors[tcount].uicolors[3]);
     }
 }
 export class ModifyMaxCounterAction extends Action {
@@ -240,7 +240,7 @@ export class ModifyMaxCounterAction extends Action {
             this.target.curCounter = this.target.baseCounter;
         }
         this.target.updateElement();
-        this.target.flash("gold");
+        this.target.flash(themeColors[tcount].uicolors[3]);
     }
 }
 export class ModifyAttackAction extends Action {
@@ -253,7 +253,7 @@ export class ModifyAttackAction extends Action {
     run() {
         this.target.curAttack += this.amount;
         this.target.updateElement();
-        this.target.flash("skyblue");
+        this.target.flash(themeColors[tcount].uicolors[2]);
     }
 }
 export class RestoreAction extends Action {
@@ -269,7 +269,7 @@ export class RestoreAction extends Action {
         if (this.target.curHealth <= 0)
             this.target.takeDamage(0, this.source);
         this.target.updateElement();
-        this.target.flash("salmon");
+        this.target.flash(themeColors[tcount].uicolors[0]);
     }
 }
 export class ModifyMaxHealthAction extends Action {
@@ -286,7 +286,7 @@ export class ModifyMaxHealthAction extends Action {
         if (this.target.curHealth <= 0)
             this.target.takeDamage(0, this.source);
         this.target.updateElement();
-        this.target.flash("salmon");
+        this.target.flash(themeColors[tcount].uicolors[0]);
     }
 }
 export class DieAction extends Action {
@@ -349,6 +349,6 @@ export class ModifyFrenzyAction extends Action {
     run() {
         this.target.frenzy = Math.max(1, this.target.frenzy + this.amount);
         this.target.updateElement();
-        this.target.flash("orange");
+        this.target.flash(themeColors[tcount].uicolors[5]);
     }
 }

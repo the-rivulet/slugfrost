@@ -1,4 +1,4 @@
-import { game, getId, hasAttack, hasCondition, hasCounter, log, ui } from "./game.js";
+import { game, getId, hasAttack, hasCondition, hasCounter, log, tcount, themeColors, ui } from "./game.js";
 import { HitAction, FindTargetsAction, SummonUnitAction, TriggerAction, FinishedPlayingAction, DieAction, TempModifyCounterAction, GetDisplayedAttackAction } from "./action.js";
 export class Card {
     constructor(owner, addToDeck = true, addToHand = false) {
@@ -102,7 +102,7 @@ export class Card {
             this.element.classList.add("leader");
         if (this instanceof CompanionCard && this.boss)
             this.element.classList.add("boss");
-        this.element.innerHTML = this.name + "<br/>" + (this.abilities.map(x => x.text).join("<br/>") || "<span style='color:gray'>" + this.text + "</span>");
+        this.element.innerHTML = "<span class='cardname'>" + this.name + "</span><br/>" + (this.abilities.map(x => x.text).join("<br/>") || "<span style='color:" + themeColors[tcount].uicolors[6] + "'>" + this.text + "</span>");
         if (hasAttack(this)) {
             let el = Array.from(this.element.children).find(x => x.classList.contains("base-attack"));
             if (!el) {
@@ -110,7 +110,7 @@ export class Card {
                 el.classList.add("base-attack", "cardright");
                 this.element.appendChild(el);
             }
-            el.innerHTML = "<span style='color:skyblue'>" + new GetDisplayedAttackAction(this, this.curAttack).execute() + "</span>";
+            el.innerHTML = "<span style='color:" + themeColors[tcount].uicolors[2] + "'>" + new GetDisplayedAttackAction(this, this.curAttack).execute() + "</span>";
         }
         for (let effect of this.curEffects) {
             let el = Array.from(this.element.children).find(x => x.classList.contains(effect.id.replace(".", "-")));
@@ -130,7 +130,7 @@ export class Card {
                 this.element.appendChild(el);
             }
             el.style.bottom = Array.from(this.element.children).filter(x => x.classList.contains("cardbottom")).length * 20 + "px";
-            el.innerHTML = "<span style='color:orange'>{×" + this.frenzy + "}</span>";
+            el.innerHTML = "<span style='color:" + themeColors[tcount].uicolors[5] + "'>{×" + this.frenzy + "}</span>";
         }
         if (this.abilities.find(x => x.isReaction)) {
             let el = Array.from(this.element.children).find(x => x.classList.contains("base-reaction"));
@@ -140,7 +140,7 @@ export class Card {
                 this.element.appendChild(el);
             }
             el.style.bottom = Array.from(this.element.children).filter(x => x.classList.contains("cardbottom")).length * 20 + "px";
-            el.innerHTML = `<span style='color:${this.curEffects.find(x => x.id == `base.snow`) ? "#77f" : "orange"}'>{!}</span>`;
+            el.innerHTML = `<span style='color:${this.curEffects.find(x => x.id == `base.snow`) ? "gray" : themeColors[tcount].uicolors[5]}'>{!}</span>`;
         }
         if (this.hovered)
             this.onhover();
@@ -246,7 +246,7 @@ export class UnitCard extends Card {
                 el.classList.add("base-counter", "cardbottom");
                 this.element.appendChild(el);
             }
-            el.innerHTML = "<span style='color:" + (this.curEffects.find(x => x.id == `base.snow`) ? "gray" : this.curCounter == 1 ? "red" : "gold") + "'>" + this.curCounter + "</span>";
+            el.innerHTML = "<span style='color:" + (this.curEffects.find(x => x.id == `base.snow`) ? "gray" : this.curCounter == 1 ? themeColors[tcount].uicolors[4] : themeColors[tcount].uicolors[3]) + "'>" + this.curCounter + "</span>";
         }
     }
 }
@@ -272,7 +272,7 @@ export class CompanionCard extends UnitCard {
             el.classList.add("base-health", "cardleft");
             this.element.appendChild(el);
         }
-        el.innerHTML = "<span style='color:salmon'>" + this.curHealth + "</span>";
+        el.innerHTML = "<span style='color:" + themeColors[tcount].uicolors[0] + "'>" + this.curHealth + "</span>";
     }
     init() {
         this.maxHealth = this.baseHealth;
@@ -302,7 +302,7 @@ export class ClunkerCard extends UnitCard {
             el.classList.add("base-scrap", "cardleft");
             this.element.appendChild(el);
         }
-        el.innerHTML = " <span style='color:#733'>" + this.curScrap + "</span>";
+        el.innerHTML = " <span style='color:" + themeColors[tcount].uicolors[1] + "'>" + this.curScrap + "</span>";
     }
     init() {
         this.curScrap = this.baseScrap;

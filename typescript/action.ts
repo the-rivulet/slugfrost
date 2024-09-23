@@ -1,6 +1,6 @@
 import type { Ability, Effect } from "./ability.js";
 import type { Card, CompanionCard, ItemCard, UnitCard } from "./card.js";
-import { game, log, HasAttack, HasCounter, Side, hasAttack, getId, Player, ui } from "./game.js";
+import { game, log, HasAttack, HasCounter, Side, hasAttack, getId, Player, ui, themeColors, tcount } from "./game.js";
 
 export abstract class Action<T = void> {
   abstract id: string;
@@ -248,7 +248,7 @@ export class TempModifyCounterAction extends Action {
       this.target.curCounter = this.target.baseCounter;
     }
     this.target.updateElement();
-    this.target.flash("gold");
+    this.target.flash(themeColors[tcount].uicolors[3]);
   }
 }
 
@@ -269,7 +269,7 @@ export class ModifyMaxCounterAction extends Action {
       this.target.curCounter = this.target.baseCounter;
     }
     this.target.updateElement();
-    this.target.flash("gold");
+    this.target.flash(themeColors[tcount].uicolors[3]);
   }
 }
 
@@ -285,7 +285,7 @@ export class ModifyAttackAction extends Action {
   run() {
     this.target.curAttack += this.amount;
     this.target.updateElement();
-    this.target.flash("skyblue");
+    this.target.flash(themeColors[tcount].uicolors[2]);
   }
 }
 
@@ -304,7 +304,7 @@ export class RestoreAction extends Action {
     this.target.curHealth = Math.min(this.target.maxHealth, this.target.curHealth + this.amount);
     if(this.target.curHealth <= 0) this.target.takeDamage(0, this.source);
     this.target.updateElement();
-    this.target.flash("salmon");
+    this.target.flash(themeColors[tcount].uicolors[0]);
   }
 }
 
@@ -324,7 +324,7 @@ export class ModifyMaxHealthAction extends Action {
     this.target.curHealth += this.amount;
     if(this.target.curHealth <= 0) this.target.takeDamage(0, this.source);
     this.target.updateElement();
-    this.target.flash("salmon");
+    this.target.flash(themeColors[tcount].uicolors[0]);
   }
 }
 
@@ -393,6 +393,6 @@ export class ModifyFrenzyAction extends Action {
   run() {
     this.target.frenzy = Math.max(1, this.target.frenzy + this.amount);
     this.target.updateElement();
-    this.target.flash("orange");
+    this.target.flash(themeColors[tcount].uicolors[5]);
   }
 }

@@ -84,7 +84,7 @@ class Game {
             this.resolveAll();
             this.redrawBellTime = Math.max(0, this.redrawBellTime - 1);
             getId("redrawbell").textContent = "Redraw [" + (this.redrawBellTime || "Charged!") + "]";
-            getId("redrawbell").style.color = this.redrawBellTime ? "white" : "gold";
+            getId("redrawbell").style.color = this.redrawBellTime ? "white" : "var(--theme-color-blings)";
             this.waveBellTime--;
             getId("wavebell").textContent = "Wave [" + this.waveBellTime + "]";
         }
@@ -439,10 +439,28 @@ export const ui = {
         ui.currentlyPlaying = undefined;
     }
 };
+export let tcount = 0;
 export let themeColors = [
-    ["#333", "black", "blue", "#a0a", "#333", "#666", "white"],
+    {
+        name: "Rivulet",
+        bgcolors: ["#55a", "#226", "#a0a", "black", "#111", "#333", "#666", "white"],
+        uicolors: ["salmon", "#733", "skyblue", "gold", "red", "orange", "gray"],
+    }, {
+        name: "Artificer",
+        bgcolors: ["#a55", "#622", "#668", "black", "#311", "#533", "#866", "#fdd"],
+        uicolors: ["salmon", "#733", "skyblue", "gold", "red", "orange", "#a88"],
+    }, {
+        name: "Saint",
+        bgcolors: ["#5a5", "#262", "#335", "black", "#001", "#223", "#446", "white"],
+        uicolors: ["salmon", "#733", "skyblue", "gold", "red", "orange", "#696"],
+    }, {
+        name: "Nightcat",
+        bgcolors: ["#666", "#222", "#222", "black", "#111", "#333", "#666", "white"],
+        uicolors: ["#aaa", "#aaa", "#aaa", "#aaa", "white", "#aaa", "gray"],
+    }
 ];
 export function applyTheme(theme) {
-    let t = themeColors[theme];
-    document.body.style.cssText = t.map((x, i) => "--theme-color-" + i + ": " + x + ";").join(" ");
+    tcount = theme;
+    let t = themeColors[theme].bgcolors;
+    document.body.style.cssText = t.map((x, i) => "--theme-color-" + i + ": " + x + ";").join(" ") + " --theme-color-blings: " + themeColors[theme].uicolors[3] + ";";
 }
