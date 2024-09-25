@@ -152,6 +152,7 @@ class Game {
         ][Math.floor(Math.random() * 6)];
         let mapType = Math.random() < 0.5 ? ["1-0", "1-1", "0-2", "2-2", "0-3", "2-3", "1-4", "1-5"] : ["1-0", "0-1", "2-1", "0-2", "2-2", "0-3", "2-3", "1-4"];
         for (let i of Array.from(document.getElementsByClassName("mapitem"))) {
+            log("id=" + i.id);
             if (mapType.includes(i.id.replace("map-", ""))) {
                 i.style.display = "";
                 i.innerHTML = randomEvent().replace("|", "<br/>");
