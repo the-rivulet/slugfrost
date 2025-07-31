@@ -36,6 +36,7 @@ class Game {
         this.inDeckView = false;
         this.companionDeck = [];
         this.treasureDeck = [];
+        this.charmPool = [];
         this.firstCombat = true;
     }
     cardsByPos(side, row, col) {
@@ -144,12 +145,14 @@ class Game {
         }
         let randomEvent = () => [
             MapEvent.blingsnailCave,
+            MapEvent.charmDispenser,
+            MapEvent.charmDispenser,
             MapEvent.frozenTravelers,
             MapEvent.frozenTravelers,
             MapEvent.muncher,
             MapEvent.treasureChest,
             MapEvent.treasureChest
-        ][Math.floor(Math.random() * 6)];
+        ][Math.floor(Math.random() * 8)];
         let mapType = Math.random() < 0.5 ? ["1-0", "1-1", "0-2", "2-2", "0-3", "2-3", "1-4", "1-5"] : ["1-0", "0-1", "2-1", "0-2", "2-2", "0-3", "2-3", "1-4"];
         for (let i of Array.from(document.getElementsByClassName("mapitem"))) {
             log("id=" + i.id);
@@ -210,6 +213,13 @@ class Game {
                             card.init();
                         }
                     }
+                    else if (i.innerHTML.includes(MapEvent.charmDispenser.split("|")[0])) {
+                        getId("event-charmdispenser").style.top = "10%";
+                        let charm = game.charmPool.splice(Math.floor(Math.random() * game.charmPool.length), 1)[0];
+                        getId("charmtype").textContent = charm.name;
+                        game.players[0].charms.push(charm);
+                        log("Added: " + charm.name + " : " + charm.text);
+                    }
                     else if (i.innerHTML.includes(MapEvent.woollySnail.split("|")[0])) {
                         getId("event-woollysnail").style.top = "10%";
                         let consume = () => game.treasureDeck.filter(x => x.abilities.find(x => x.id == `base.consume`));
@@ -267,6 +277,9 @@ class Game {
                 card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
                 card.element.style.bottom = "10px";
                 card.element.style.opacity = "0";
+            }
+            for (let i of Array.from(getId("worldmap").children).filter(x => x.classList.contains("charm"))) {
+                i.remove();
             }
             ui.deselect();
         }
@@ -373,6 +386,7 @@ export class Player {
         this.discardPile = [];
         this.exilePile = [];
         this._blings = 0;
+        this.charms = [];
         this.side = side;
         if (realPlayer)
             game.players.push(this);
@@ -434,10 +448,12 @@ export var Side;
 })(Side || (Side = {}));
 export const ui = {
     currentlyPlaying: undefined,
+    currentCharm: undefined,
     deselect: () => {
         var _a;
         (_a = ui.currentlyPlaying) === null || _a === void 0 ? void 0 : _a.element.classList.remove("currentlyPlaying");
         ui.currentlyPlaying = undefined;
+        ui.currentCharm = undefined;
     }
 };
 export let tcount = 0;

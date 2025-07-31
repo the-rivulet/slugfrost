@@ -244,7 +244,11 @@ export class TriggerWhenAllyInRowAttacksAbility extends Ability {
         this.isReaction = true;
     }
     use(ac) {
-        if (ac instanceof TriggerAction && !ac.card.abilities.find(x => x instanceof TriggerWhenAllyInRowAttacksAbility) && ac.card instanceof UnitCard && ac.card.owner.side == this.owner.owner.side && ac.card.fieldPos.row == this.owner.fieldPos.row) {
+        if (ac instanceof TriggerAction &&
+            !ac.card.abilities.find(x => x instanceof TriggerWhenAllyInRowAttacksAbility) &&
+            ac.card instanceof UnitCard &&
+            ac.card.owner.side == this.owner.owner.side &&
+            ac.card.fieldPos.row == this.owner.fieldPos.row) {
             this.owner.trigger();
         }
     }

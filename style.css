@@ -48,9 +48,8 @@ body.resolving {
   width: 100%;
   text-align: center;
 }
-.currentlyPlaying {
+.card.currentlyPlaying {
   bottom: 50px;
-  background: var(--theme-color-1);
 }
 .leader {
   color: var(--theme-color-0);
@@ -187,4 +186,10 @@ body.resolving {
 }
 #tip:empty {
   display: none;
+}
+.charm {
+  border: 2px solid var(--theme-color-0);
+}
+.currentlyPlaying {
+  background: var(--theme-color-1);
 }

@@ -1,6 +1,7 @@
 import { game, getId, Player, ui, log, applyTheme, themeColors, tcount } from "./game.js";
 import { BamboozleCard, BerryBasketCard, BerryBladeCard, BigBerryCard, BigPengCard, BijiCard, BiteboxCard, BlazeTeaCard, BlizzardBottleCard, BonnieCard, ChungoonCard, DragonPepperCard, FirefistCard, FlamewaterCard, FoxeeCard, FrostBellCard, FrostbloomCard, FrostingerCard, GachapomperCard, GoblingCard, GojiberCard, HeartmistStationCard, IceLanternCard, MimikCard, MoltenDipCard, PengoonCard, PeppereaperCard, PepperingCard, PinkberryJuiceCard, PorkypineCard, PyraCard, ScrappySwordCard, SlapcrackersCard, SneezleCard, SnobbleCard, SnowboCard, SnowcakeCard, SnowStickCard, StormbearSpiritCard, SunlightDrumCard, SunRodCard, TheRingerCard, WaddlegoonsCard, WildSnoolfCard, WinterWormCard, WoodheadCard } from "./slugfrost/cards.js";
 import { ClunkerCard, ItemCard, UnitCard } from "./card.js";
+import { BattleCharm } from "./slugfrost/charms.js";
 try {
     log("Setting up...");
     for (let i of Array.from(document.getElementsByClassName("slot"))) {
@@ -106,6 +107,36 @@ try {
                     card.element.style.display = "";
                 }
             }
+            for (let i of rivu.charms) {
+                log("Rendering " + i.name);
+                let el = document.createElement("div");
+                el.classList.add("bell", "charm");
+                el.style.zIndex = "3";
+                el.style.bottom = 60 + (40 * rivu.charms.indexOf(i)) + "px";
+                el.textContent = i.name + " Charm";
+                el.onmouseenter = (e) => {
+                    getId("tip").innerHTML = (i.abilities.map(x => x.text).join("<br/>") || i.text);
+                };
+                el.onmouseleave = (e) => {
+                    getId("tip").innerHTML = "";
+                };
+                el.onclick = function (e) {
+                    if (i.applicable(ui.currentlyPlaying) && !game.inCombat) {
+                        log("Applying charm!! :O");
+                        i.owner.charms.splice(i.owner.charms.indexOf(i), 1);
+                        i.apply(ui.currentlyPlaying);
+                        ui.deselect();
+                        getId("tip").innerHTML = "";
+                        el.remove();
+                        return;
+                    }
+                    else {
+                        ui.deselect();
+                        ui.currentCharm = i;
+                    }
+                };
+                getId("worldmap").appendChild(el);
+            }
         }
         catch (e) {
             log("Error in deck view: " + e);
@@ -158,6 +189,13 @@ try {
             deckView();
         game.updateMap();
     };
+    getId("event-charmdispenser").onclick = function () {
+        getId("worldmap").style.top = "0%";
+        getId("event-charmdispenser").style.top = "-100%";
+        if (game.inDeckView)
+            deckView();
+        game.updateMap();
+    };
     getId("event-woollysnail").onclick = function () {
         for (let i of Array.from(getId("event-woollysnail").children))
             i.remove();
@@ -174,6 +212,9 @@ try {
                 card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
                 card.element.style.bottom = "10px";
                 card.element.style.opacity = "0";
+            }
+            for (let i of Array.from(getId("worldmap").children).filter(x => x.classList.contains("charm"))) {
+                i.remove();
             }
             ui.deselect();
         }
@@ -293,6 +334,10 @@ try {
         new GachapomperCard(rivu, false),
         new HeartmistStationCard(rivu, false)
     ];
+    game.charmPool = [
+        new BattleCharm(rivu),
+    ];
+    rivu.charms = [new BattleCharm(rivu)];
     game.setupMap();
 }
 catch (e) {

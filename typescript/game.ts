@@ -1,6 +1,7 @@
 import type { Ability } from "./ability.js";
 import type { Action } from "./action.js";
 import type { Card, ClunkerCard, CompanionCard, ItemCard, UnitCard } from "./card.js";
+import type { Charm } from "./charm.js";
 
 export function log(text: any) {
   // clear things out if needed
@@ -41,6 +42,7 @@ class Game {
   inDeckView = false;
   companionDeck: CompanionCard[] = [];
   treasureDeck: (ClunkerCard | ItemCard)[] = [];
+  charmPool: Charm[] = [];
   firstCombat = true;
   cardsByPos(side?: number, row?: number, col?: number) {
     let cards = this.battlefield;
@@ -126,13 +128,14 @@ class Game {
     }
     let randomEvent = () => [
       MapEvent.blingsnailCave,
-      // MapEvent.charmDispenser,
+      MapEvent.charmDispenser,
+      MapEvent.charmDispenser,
       MapEvent.frozenTravelers,
       MapEvent.frozenTravelers,
       MapEvent.muncher,
       MapEvent.treasureChest,
       MapEvent.treasureChest
-    ][Math.floor(Math.random() * 6)];
+    ][Math.floor(Math.random() * 8)];
     let mapType = Math.random() < 0.5 ? ["1-0", "1-1", "0-2", "2-2", "0-3", "2-3", "1-4", "1-5"] : ["1-0", "0-1", "2-1", "0-2", "2-2", "0-3", "2-3", "1-4"];
     for(let i of Array.from(document.getElementsByClassName("mapitem")) as HTMLElement[]) {
       log("id=" + i.id);
@@ -186,6 +189,12 @@ class Game {
             card.element.style.left = `calc(50% - 180px * ${i} + 135px * ${numRewards - 2})`;
             card.init();
           }
+        } else if(i.innerHTML.includes(MapEvent.charmDispenser.split("|")[0])) {
+          getId("event-charmdispenser").style.top = "10%";
+          let charm = game.charmPool.splice(Math.floor(Math.random() * game.charmPool.length), 1)[0];
+          getId("charmtype").textContent = charm.name;
+          game.players[0].charms.push(charm);
+          log("Added: " + charm.name + " : " + charm.text);
         } else if(i.innerHTML.includes(MapEvent.woollySnail.split("|")[0])) {
           getId("event-woollysnail").style.top = "10%";
           // Three non-Consume items, costing 30-50
@@ -241,6 +250,9 @@ class Game {
         card.element.style.left = "calc(100% - " + card.element.offsetWidth + "px)";
         card.element.style.bottom = "10px";
         card.element.style.opacity = "0";
+      }
+      for(let i of Array.from(getId("worldmap").children).filter(x => x.classList.contains("charm"))) {
+        i.remove();
       }
       ui.deselect();
     }
@@ -338,6 +350,7 @@ export class Player {
     }
     changeBling();
   }
+  charms: Charm[] = [];
   constructor(side: number, realPlayer: boolean) {
     this.side = side;
     if(realPlayer) game.players.push(this);
@@ -417,13 +430,16 @@ export interface FightData {
 
 type UIData = {
   currentlyPlaying: Card;
+  currentCharm: Charm;
   deselect: () => void;
 }
 export const ui: UIData = {
   currentlyPlaying: undefined,
+  currentCharm: undefined,
   deselect: () => {
     ui.currentlyPlaying?.element.classList.remove("currentlyPlaying");
     ui.currentlyPlaying = undefined;
+    ui.currentCharm = undefined;
   }
 };
 

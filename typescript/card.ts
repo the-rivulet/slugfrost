@@ -62,8 +62,7 @@ export abstract class Card {
         ui.deselect();
         game.endTurn();
         return;
-      }
-      if(ui.currentlyPlaying == this) {
+      } else if(ui.currentlyPlaying == this) {
         ui.deselect();
       } else if(this.owner.side == 0) { // only p0's cards can be selected
         ui.deselect();

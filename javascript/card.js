@@ -58,7 +58,7 @@ export class Card {
                 game.endTurn();
                 return;
             }
-            if (ui.currentlyPlaying == this) {
+            else if (ui.currentlyPlaying == this) {
                 ui.deselect();
             }
             else if (this.owner.side == 0) {
